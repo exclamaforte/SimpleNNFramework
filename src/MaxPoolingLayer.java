@@ -5,17 +5,17 @@ public class MaxPoolingLayer extends Layer {
     private int[][][] maxIndexes;
 
 
-    public MaxPoolingLayer(int previousWidth, int previousDepth, int step , int poolingWidth) {
+    public MaxPoolingLayer(int previousWidth, int previousDepth,int step , int poolingWidth) {
+        super(previousWidth,previousDepth,(previousWidth + step - poolingWidth) / step, previousDepth);
         this.poolingWidth = poolingWidth;
         this.step = step;
         this.previousWidth = previousWidth;
         this.previousDepth = previousDepth;
 
-        //Get output dimensions
+        //Assert step and pooling width works
         int c = previousWidth + step - poolingWidth;
         assert(c % step == 0);
-        this.outputWidth = c / step;
-        this.outputDepth = this.previousDepth;
+
 
         this.maxIndexes = new int[outputDepth][poolingWidth][poolingWidth];
     }
