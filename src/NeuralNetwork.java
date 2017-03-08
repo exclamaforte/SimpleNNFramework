@@ -47,8 +47,22 @@ public class NeuralNetwork {
         layers.add(new FullyConnectedLayer(numHU));
     }
     public void train(double[][][][] train, double[] trainClass) {
+
+        //initialize forward and backward arrays
         double[][][][] forward = new double[this.layers.size() + 2][][][];
         double[][][][] backward = new double[this.layers.size() + 2][][][];
+        forward[0] = new double[inputDepth][inputWidth][inputWidth];
+        backward[0] = new double[inputDepth][inputWidth][inputWidth];
+        for(int i = 0; i < layers.size(); i ++){
+            Layer layer = layers.get(i);
+            forward[i+1] = new double[layer.outputDepth][layer.outputWidth][layer.outputWidth];
+            backward[i+1] = new double[layer.outputDepth][layer.outputWidth][layer.outputWidth];
+        }
+        forward[forward.length -1] = new double[1][1][outputClasses];
+        backward[forward.length -1] = new double[1][1][outputClasses];
+        //**********************************
+
+        //Run epochs
         for (int instidx = 0; instidx < train.length; instidx++) {
         	forward[0] = train[instidx];
 
