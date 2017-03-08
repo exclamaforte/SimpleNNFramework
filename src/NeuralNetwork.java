@@ -1,17 +1,17 @@
 import java.util.ArrayList;
 
 public class NeuralNetwork {
-    private InputLayer input;
+    private int inputDepth;
+    private int inputWidth;
     private OutputLayer output;
     private ArrayList<Layer> layers;
-    private int inputSize;
-    private int outputSize;
-    public NeuralNetwork(int inputSize, int outputSize) {
+    private int outputClasses;
+    public NeuralNetwork(int inputWidth, int inputDepth, int outputClasses) {
         this.layers = new ArrayList<Layer>();
-        this.inputSize = inputSize;
-        this.outputSize = outputSize;
-        this.input = new InputLayer(inputSize);
-        this.output = new OutputLayer(outputSize);
+        this.inputDepth = inputDepth;
+        this.inputWidth = inputWidth;
+        this.outputClasses = outputClasses;
+        this.output = new OutputLayer(outputClasses);
     }
     /*
      * Converts a dataset object to the correct feature vector
@@ -29,34 +29,46 @@ public class NeuralNetwork {
     public void addConvolutionLayer(int side, int numHU, int imgWidth, int imgHeight) {
         layers.add(new ConvolutionLayer(side, numHU));
     }
-    public void addMaxPoolingLayer(int side, int numHU, int imgWidth, int imgHeight) {
-        layers.add(new MaxPoolingLayer(side, numHU));
+    public void addMaxPoolingLayer(int step, int poolingWidth) {
+        int previousWidth = -1;
+        int previousDepth = -1;
+        if(layers.size() == 0) {
+            previousWidth = inputWidth;
+            previousDepth= inputDepth;
+        }
+        else {
+            Layer input = layers.get(layers.size() - 1);
+            previousWidth = input.getOutputWidth();
+            previousDepth = input.getOutputDepth();
+        }
+        layers.add(new MaxPoolingLayer(previousWidth, previousDepth,step,poolingWidth));
     }
     public void addFullyConnectedLayer(int numHU) {
         layers.add(new FullyConnectedLayer(numHU));
     }
-    public void train(double[][][] train, double[] trainClass) {
+    public void train(double[][][][] train, double[] trainClass) {
         double[][][][] forward = new double[this.layers.size() + 2][][][];
-        double[][][][] backward = new double[this.layers.size() + 1][][][];
+        double[][][][] backward = new double[this.layers.size() + 2][][][];
         for (int instidx = 0; instidx < train.length; instidx++) {
-        	double[][][] hold = new double[1][][];
-        	hold[0] = train[instidx];
+        	forward[0] = train[instidx];
+
             int i = 1;
-            forward[0] = input.forward(hold, trainClass[instidx]);
             for (Layer l : this.layers) {
-                forward[i] = l.forward(forward[i - 1], trainClass[instidx]);
+                l.forward(i,forward, trainClass[instidx]);
                 i++;
             }
-            forward[i] = output.forward(forward[i - 1], trainClass[instidx]);
+            output.forward(i, forward, trainClass[instidx]);
 
+
+            output.backwards(i,forward,backward);
             i--;
-            backward[i] = output.backwards(forward[i]);
             for (Layer l : this.layers) {
-                backward[i - 1] = l.backwards(backward[i]);
+                l.backwards(i,forward,backward);
                 i--;
             }
         }
     }
+
     public void test(double[][][] test, double[][][] testClass) {
 
     }

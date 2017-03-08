@@ -27,15 +27,13 @@ public class ConvolutionLayer extends Layer {
     }
 
     @Override
-    public double[][][] forward(double[][][] data, double cls) {
-        assert((this.numHU % data.length) == 0);
-		return data;
+    public void forward(int layer, double[][][][] forwardData, double cls) {
+
     }
 
     @Override
-    public double[][][] backwards(double[][][] errs) {
-    	double[][][] ret = new double[1][][]; // TODO Change argument
-    	return ret;
+    public void backwards(int layer, double[][][][] forwardData, double[][][][] backwardData) {
+
     }
 
 }
