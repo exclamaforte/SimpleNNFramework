@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 
 public class NeuralNetwork {
+    public static final double LEARNING_RATE  = 0.001;
     private int inputDepth;
     private int inputWidth;
     private OutputLayer output;
@@ -20,15 +21,28 @@ public class NeuralNetwork {
     public static double[][][] convertDataset(Dataset d) {
     	return null;
     }
-    
+
     /*
      * Converts a dataset object to the correct class vector
      */
     public static double[] convertClass(Dataset d) {
     	return null;
     }
-    public void addConvolutionLayer(int side, int numHU, int imgWidth, int imgHeight) {
-        layers.add(new ConvolutionLayer(side, numHU));
+
+    public static double Convolution_Initial_Radius = 0.1
+    public void addConvolutionLayer(int numKernels, int kernelWidth, int step) {
+        int previousWidth;
+        int previousDepth;
+        if(layers.size() > 0) {
+            Layer previousLayer = layers.get(layers.size() - 1);
+            previousDepth = previousLayer.previousDepth;
+            previousWidth = previousLayer.previousWidth;
+        }
+        else {
+            previousWidth = inputWidth;
+            previousDepth = inputDepth;
+        }
+        layers.add(new ConvolutionLayer(previousWidth,previousDepth,numKernels,kernelWidth,step,Convolution_Initial_Radius));
     }
     public void addMaxPoolingLayer(int step, int poolingWidth) {
         int previousWidth = -1;
@@ -72,13 +86,13 @@ public class NeuralNetwork {
                 l.forward(i,forward, trainClass[instidx]);
                 i++;
             }
-            output.forward(i, forward, trainClass[instidx]);
+            output.forward(i, forward,  trainClass[instidx]);
 
 
             output.backwards(i,forward,backward, learningRate, trainClass);
             i--;
             for (Layer l : this.layers) {
-                l.backwards(i,forward,backward, learningRate);
+                l.backwards(i,forward,backward,LEARNING_RATE);
                 i--;
             }
         }
