@@ -31,23 +31,26 @@ public class ConvolutionLayer extends Layer {
                 }
             }
         }
+        for(int i = 0; i < biases.length; i ++){
+            biases[i] = 1;
+        }
     }
 
     @Override
     public void forward(int layer, double[][][][] forwardData, double cls) {
-        for(int kernel = 0; kernel < outputDepth; kernel ++){
-            for(int i = 0; i < outputWidth; i ++){
-                for(int j = 0; j < outputWidth; j ++){
+        for(int output_i = 0; output_i < outputDepth; output_i ++){
+            for(int output_j = 0; output_j < outputWidth; output_j ++){
+                for(int output_k = 0; output_k < outputWidth; output_k ++){
                     double sum = 0;
-                    for(int k = 0; k < previousDepth; k ++){
-                        for(int l = 0; l < kernelWidth; l ++){
-                            for(int m = 0; m < kernelWidth; m ++){
-                                sum += forwardData[layer -1][k][i * step + l][i * step + m] * kernels[kernel][k][l][m];
+                    for(int kernel_i = 0; kernel_i < previousDepth; kernel_i ++){
+                        for(int kernel_j = 0; kernel_j < kernelWidth; kernel_j ++){
+                            for(int kernel_k = 0; kernel_k < kernelWidth; kernel_k ++){
+                                sum += forwardData[layer -1][kernel_i][output_j * step + kernel_j][output_k * step + kernel_k] * kernels[output_i][kernel_i][kernel_j][kernel_k];
                             }
                         }
                     }
-                    sum += biases[kernel];
-                    forwardData[layer][kernel][i][j] = Math.max(0, sum);
+                    sum += biases[output_i];
+                    forwardData[layer][output_i][output_j][output_k] = Math.max(0, sum);
                 }
             }
         }
@@ -73,8 +76,9 @@ public class ConvolutionLayer extends Layer {
                         double kernelElementDeltaSum = 0;
                         for (int output_i = 0; output_i < outputWidth; output_i++) {
                             for (int output_j = 0; output_j < outputWidth; output_j++) {
+
                                 //check if derivative is 0
-                                if(forwardData[layer][kernel_i][output_i][output_j] == 0)
+                                if(forwardData[layer][kernel_i][output_i][output_j] 0)
                                     continue;
 
                                 double derivOut = backwardData[layer][kernel_i][output_i][output_j];
@@ -94,9 +98,199 @@ public class ConvolutionLayer extends Layer {
                         kernels[kernel_i][kernel_j][kernel_k][kernel_l] += kernelElementDeltaSum* learningRate;
                     }
                 }
-                biases[kernel_i] += biasDeltaSum * learningRate;
+            }
+            biases[kernel_i] += biasDeltaSum * learningRate;
+        }
+    }
+
+    public static void main(String[] args){
+
+        int inputDepth =1;
+        int inputWidth = 34;
+        int outputDepth = 1;
+        int step = 2;
+        int kernelWidth = 2;
+        int kernelDepth = inputDepth;
+        int outputWidth = (inputWidth + step - kernelWidth) / step;
+
+        int maxStep = 2;
+        int maxDepth = outputDepth;
+        int poolingWidth = 2;
+        int maxWidth = (outputWidth + maxStep - poolingWidth)/maxStep;
+
+        MaxPoolingLayer maxLayer = new MaxPoolingLayer(outputWidth,outputDepth,maxStep,poolingWidth);
+
+        System.out.println(maxLayer.getOutputDepth());
+
+
+        ConvolutionLayer layer = new ConvolutionLayer(inputWidth,inputDepth,outputDepth,kernelWidth,step,2);
+
+        boolean random = true;
+
+        if(random)
+        layer.randomInit();
+
+        if(!random)
+        for(int d = 0; d < outputDepth; d ++) {
+            layer.biases[d] = 0;
+            for (int i = 0; i < kernelDepth; i++) {
+                for (int j = 0; j < kernelWidth; j++) {
+                    for (int k = 0; k < kernelWidth; k++) {
+                        layer.kernels[d][i][j][k] = 1;
+                    }
+                }
             }
         }
+
+
+
+        System.out.println(layer.getOutputWidth());
+        double[][][][] forward = new double[3][][][];
+        forward[0] = new double[inputDepth][inputWidth][inputWidth];
+        forward[1] = new double[outputDepth][outputWidth][outputWidth];
+        forward[2] = new double[maxDepth][maxWidth][maxWidth];
+
+        double[][][][] backward = new double[3][][][];
+        backward[0] = new double [inputDepth][inputWidth][inputWidth];
+        backward[1] = new double[outputDepth][outputWidth][outputWidth];
+        backward[2] = new double[maxDepth][maxWidth][maxWidth];
+
+        // do analytic;
+        for(int i = 0; i < inputDepth; i ++){
+            for(int j = 0; j <inputWidth; j ++){
+                for(int k = 0; k < inputWidth; k ++){
+                    if(random)
+                        forward[0][i][j][k] = Math.random();
+                    else
+                        forward[0][i][j][k] = ((i+j+k) == 0 ? 1 : 0);
+                }
+            }
+        }
+
+
+
+
+
+        int check_i = 0;
+        int check_j = 0;
+        int check_k = 0;
+
+
+
+        for(int i = 0; i < outputDepth; i ++){
+            for(int j = 0; j < maxWidth; j ++){
+                for(int k = 0; k < maxWidth; k ++){
+                    backward[2][i][j][k] = 1;
+                }
+            }
+        }
+
+        double eps = 0.000000001;
+
+        double startKernelValue  = layer.kernels[0][0][0][0];
+
+
+        layer.kernels[0][0][0][0] += eps;
+
+        layer.forward(1,forward,0);
+        maxLayer.forward(2,forward,0);
+
+
+        for(int i = 0; i < maxDepth; i ++){
+            for(int j = 0; j < maxWidth; j ++){
+                for(int k = 0; k < maxWidth; k ++){
+                    assert(forward[1][i][j][k] == forward[2][i][j][k]);
+                }
+            }
+        }
+
+        double kernelRight = sum(forward[2]);
+
+        layer.kernels[0][0][0][0] -= 2*eps;
+        layer.forward(1,forward,0);
+        maxLayer.forward(2,forward,0);
+        double kernelLeft = sum(forward[2]);
+
+        double kernelNumerical = (kernelRight - kernelLeft)/(2*eps);
+
+        layer.kernels[0][0][0][0] = startKernelValue;
+        layer.forward(1,forward,0);
+        maxLayer.forward(1,forward,0);
+
+
+
+        maxLayer.backwards(2,forward,backward,1);
+        layer.backwards(1,forward,backward,1);
+
+        double kernelAnalytical = (layer.kernels[0][0][0][0] - startKernelValue);
+
+        System.out.println("Kernel numerical "+ kernelNumerical);
+        System.out.println("kernel analytical "+kernelAnalytical);
+
+
+
+
+
+
+
+
+
+
+        forward[0][check_i][check_j][check_k] += eps;
+
+        layer.forward(1,forward,0);
+        maxLayer.forward(2,forward,0);
+        double right = sum(forward[2]);
+        forward[0][check_i][check_j][check_k] -= 2 * eps;
+        layer.forward(1,forward,0);
+        maxLayer.forward(2,forward,0);
+        double left = sum(forward[2]);
+
+        double numericalDeriv = (right - left)/(2*eps);
+
+        //analytical
+
+        forward[0][check_i][check_j][check_k] += eps;
+
+        layer.forward(1,forward,0);
+        maxLayer.forward(2,forward,0);
+
+        for(int i = 0; i < outputDepth; i ++){
+            for(int j = 0; j < maxWidth; j ++){
+                for(int k = 0; k < maxWidth; k ++){
+                    backward[2][i][j][k] = 1;
+                }
+            }
+        }
+
+        maxLayer.backwards(2,forward,backward,0.001);
+        layer.backwards(1,forward,backward,0.001);
+
+        double analyticalDeriv = backward[0][check_i][check_j][check_k];
+
+        System.out.println("Numerical Deriv Input" + numericalDeriv);
+        System.out.println("Analytical Deriv Input" + analyticalDeriv);
+
+        System.out.println("Abs diff " + Math.abs(analyticalDeriv - numericalDeriv));
+
+        System.out.println(layer.biases[0]);
+        System.out.println(layer.kernels[0][0][0][0]);
+
+
+
+
+    }
+
+    public static double sum(double[][][] arr){
+        double sum = 0;
+        for(int i = 0; i < arr.length; i ++){
+            for(int j = 0; j < arr[0].length; j ++){
+                for(int k = 0; k < arr[0][0].length; k ++){
+                    sum += arr[i][j][k];
+                }
+            }
+        }
+        return sum;
     }
 
 }
