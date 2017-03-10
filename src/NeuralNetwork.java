@@ -7,6 +7,7 @@ public class NeuralNetwork {
     private OutputLayer output;
     private ArrayList<Layer> layers;
     private int outputClasses;
+    private double learningRate = 0.1;
     public NeuralNetwork(int inputWidth, int inputDepth, int outputClasses) {
         this.layers = new ArrayList<Layer>();
         this.inputDepth = inputDepth;
@@ -72,8 +73,8 @@ public class NeuralNetwork {
             forward[i+1] = new double[layer.outputDepth][layer.outputWidth][layer.outputWidth];
             backward[i+1] = new double[layer.outputDepth][layer.outputWidth][layer.outputWidth];
         }
-        forward[forward.length -1] = new double[1][1][outputClasses];
-        backward[forward.length -1] = new double[1][1][outputClasses];
+        forward[forward.length -1] = new double[outputClasses][1][1];
+        backward[forward.length -1] = new double[outputClasses][1][1];
         //**********************************
 
         //Run epochs
@@ -88,7 +89,7 @@ public class NeuralNetwork {
             output.forward(i, forward,  trainClass[instidx]);
 
 
-            output.backwards(i,forward,backward);
+            output.backwards(i,forward,backward, learningRate, trainClass);
             i--;
             for (Layer l : this.layers) {
                 l.backwards(i,forward,backward,LEARNING_RATE);
