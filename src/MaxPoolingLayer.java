@@ -17,25 +17,25 @@ public class MaxPoolingLayer extends Layer {
         assert(c % step == 0);
 
 
-        this.maxIndexes = new int[outputDepth][poolingWidth][poolingWidth];
+        this.maxIndexes = new int[outputDepth][outputWidth][outputWidth];
     }
 
     @Override
     public void forward(int layer, double[][][][] forwardData, double cls) {
-        double[][][] data = forwardData[layer];
+        double[][][] data = forwardData[layer-1];
         assert(data.length == previousDepth);
         assert(data[0].length == previousWidth);
 
-        double[][][] ret = forwardData[layer + 1];
+        double[][][] ret = forwardData[layer ];
         for (int imageNum = 0; imageNum < previousDepth; imageNum++) {
-	        for (int i = 0; i < outputWidth; i++) {
-	            for (int j = 0; j < outputWidth; j++) {
-	                ret[imageNum][i][j] = -Double.MAX_VALUE;
-	                for (int k = 0; k < poolingWidth; k++) {
-	                    for (int l = 0; l < poolingWidth; l++) {
-	                        if (data[imageNum][i * step + k][j * step + l] > ret[imageNum][i][j]) {
-	                            ret[imageNum][i][j] = data[imageNum][i * step + k][j * step + l];
-                                maxIndexes[imageNum][i][j] = k* poolingWidth + l;
+	        for (int output_i = 0; output_i < outputWidth; output_i++) {
+	            for (int output_j = 0; output_j < outputWidth; output_j++) {
+	                ret[imageNum][output_i][output_j] = Double.NEGATIVE_INFINITY;
+	                for (int pooling_i = 0; pooling_i < poolingWidth; pooling_i++) {
+	                    for (int pooling_j = 0; pooling_j < poolingWidth; pooling_j++) {
+	                        if (data[imageNum][output_i * step + pooling_i][output_j * step + pooling_j] > ret[imageNum][output_i][output_j]) {
+	                            ret[imageNum][output_i][output_j] = data[imageNum][output_i * step + pooling_i][output_j * step + pooling_j];
+                                maxIndexes[imageNum][output_i][output_j] = pooling_i* poolingWidth + pooling_j;
 	                        }
 	                    }
 	                }
@@ -45,20 +45,20 @@ public class MaxPoolingLayer extends Layer {
     }
 
     @Override
-    public void backwards(int layer, double[][][][] forwardValues, double[][][][] backwardValues) {
+    public void backwards(int layer, double[][][][] forwardValues, double[][][][] backwardValues,double learningRate) {
         for (int imageNum = 0; imageNum < previousDepth; imageNum++) {
-            for (int i = 0; i < outputWidth; i++) {
-                for (int j = 0; j < outputWidth; j++) {
-                    int maxIndex = maxIndexes[imageNum][i][j];
+            for (int output_i = 0; output_i < outputWidth; output_i++) {
+                for (int output_j = 0; output_j < outputWidth; output_j++) {
+                    int maxIndex = maxIndexes[imageNum][output_i][output_j];
                     int maxK = maxIndex / poolingWidth;
                     int maxL = maxIndex % poolingWidth;
                     for (int k = 0; k < poolingWidth; k++) {
                         for (int l = 0; l < poolingWidth; l++) {
                             double deriv = 0;
                             if(k == maxK && l == maxL){
-                                deriv = backwardValues[layer][imageNum][i][j];
+                                deriv = backwardValues[layer][imageNum][output_i][output_j];
                             }
-                            backwardValues[layer-1][imageNum][i*step + k][j* step + l] = deriv;
+                            backwardValues[layer-1][imageNum][output_i*step + k][output_j* step + l] = deriv;
                         }
                     }
                 }
