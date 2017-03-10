@@ -3,9 +3,9 @@ public class FullyConnectedLayer extends Layer {
     private double bias[]; 
     private double radius = 0.1;
 
-    public FullyConnectedLayer(int previousWidth, int nextWidth, int numHU) {
+    public FullyConnectedLayer(int previousWidth, int numHU) {
     	super(previousWidth, 1, numHU, 1);
-    	weights = new double[previousWidth][nextWidth];
+    	weights = new double[numHU][previousWidth];
     	bias = new double[numHU];
     }
 
@@ -41,15 +41,17 @@ public class FullyConnectedLayer extends Layer {
 			forwardData[layer][outIndex][0][0] = Math.max(0, sum);
 		}
 	}
+
 	@Override
 	public void backwards(int layer, double[][][][] forwardData, double[][][][] backwardData, double learningRate) {
-        for(int i = 0; i < backwardData[layer-1].length; i ++){
-            for(int j = 0; j < backwardData[layer-1][0].length; j ++){
-                for(int k = 0; k < backwardData[layer-1][0][0].length; k ++){
+        for(int i = 0; i < backwardData[layer-1].length; i ++) {
+            for(int j = 0; j < backwardData[layer-1][0].length; j ++) {
+                for(int k = 0; k < backwardData[layer-1][0][0].length; k ++) {
                     backwardData[layer-1][i][j][k] = 0;
                 }
             }
         }
+
         for (int currNodeNum = 0; currNodeNum < outputWidth; currNodeNum++) {
         	// set the deltas
         	if (forwardData[layer][currNodeNum][0][0] > 0) {

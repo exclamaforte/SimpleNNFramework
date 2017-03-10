@@ -13,7 +13,6 @@ public class NeuralNetwork {
         this.inputDepth = inputDepth;
         this.inputWidth = inputWidth;
         this.outputClasses = outputClasses;
-        this.output = new OutputLayer(outputClasses);
     }
     /*
      * Converts a dataset object to the correct feature vector
@@ -29,7 +28,7 @@ public class NeuralNetwork {
     	return null;
     }
 
-    public static double Convolution_Initial_Radius = 0.1
+    public static double Convolution_Initial_Radius = 0.1;
     public void addConvolutionLayer(int numKernels, int kernelWidth, int step) {
         int previousWidth;
         int previousDepth;
@@ -59,7 +58,28 @@ public class NeuralNetwork {
         layers.add(new MaxPoolingLayer(previousWidth, previousDepth,step,poolingWidth));
     }
     public void addFullyConnectedLayer(int numHU) {
-        layers.add(new FullyConnectedLayer(numHU));
+        int previousWidth = -1;
+        int previousDepth = -1;
+        if(layers.size() == 0) {
+            previousWidth = inputWidth;
+            previousDepth= inputDepth;
+        }
+        else {
+            Layer input = layers.get(layers.size() - 1);
+            previousWidth = input.getOutputWidth();
+            previousDepth = input.getOutputDepth();
+        }
+        layers.add(new FullyConnectedLayer(previousWidth, numHU));
+    }
+    public void addOutputLayer() {
+        int previousDepth = -1;
+        if (layers.size() == 0) {
+            previousDepth = inputDepth;
+        } else {
+            Layer input = layers.get(layers.size() - 1);
+            previousDepth = input.getOutputDepth();
+        }
+        this.output = new OutputLayer(previousDepth, outputClasses);
     }
     public void train(double[][][][] train, double[] trainClass) {
 
