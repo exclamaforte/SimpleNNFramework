@@ -1,10 +1,12 @@
 public class FullyConnectedLayer extends Layer {
     private double[][] weights;
-    private double bias; 
+    private double bias[]; 
     private double radius = 0.1;
 
-    public FullyConnectedLayer(int previousWidth, int numHU) {
+    public FullyConnectedLayer(int previousWidth, int nextWidth, int numHU) {
     	super(previousWidth, 1, numHU, 1);
+    	weights = new double[previousWidth][nextWidth];
+    	bias = new double[numHU];
     }
 
     @Override
@@ -35,7 +37,7 @@ public class FullyConnectedLayer extends Layer {
 			for (int prevIndex = 0; prevIndex < previousWidth; prevIndex++) {
 				sum += forwardData[layer - 1][prevIndex][0][0] * weights[outIndex][prevIndex];
 			}
-			sum += bias;
+			sum += bias[outIndex];
 			forwardData[layer][outIndex][0][0] = Math.max(0, sum);
 		}
 	}
@@ -48,39 +50,19 @@ public class FullyConnectedLayer extends Layer {
                 }
             }
         }
-        
-        for(int kernel_i = 0; kernel_i < outputDepth; kernel_i++) {
-            double biasDeltaSum = 0;
-            for(int kernel_j = 0; kernel_j < previousDepth; kernel_j++) {
-                for (int kernel_k = 0; kernel_k < kernelWidth; kernel_k++) {
-                    for (int kernel_l = 0; kernel_l < kernelWidth; kernel_l++) {
-                        double kernelElementDeltaSum = 0;
-                        for (int output_i = 0; output_i < outputWidth; output_i++) {
-                            for (int output_j = 0; output_j < outputWidth; output_j++) {
-                                //check if derivative is 0
-                                if(forwardData[layer][kernel_i][output_i][output_j] == 0)
-                                    continue;
-
-                                double derivOut = backwardData[layer][kernel_i][output_i][output_j];
-
-                                //only calculate bias term once
-                                //Im sorry if this code makes you mad
-                                if(kernel_j == 0 && kernel_k == 0 && kernel_l == 0)
-                                    biasDeltaSum += derivOut;
-
-                                kernelElementDeltaSum +=
-                                    derivOut*
-                                    forwardData[layer -1][kernel_j][output_i * step + kernel_k][output_j * step +kernel_l];
-                                backwardData[layer-1][kernel_j][output_i*step + kernel_k][output_j*step + kernel_l]
-                                    += derivOut*kernels[kernel_i][kernel_j][kernel_k][kernel_l];
-                            }
-                        }
-                        kernels[kernel_i][kernel_j][kernel_k][kernel_l] += kernelElementDeltaSum* learningRate;
-                    }
-                }
-                biases[kernel_i] += biasDeltaSum * learningRate;
-            }
+        for (int currNodeNum = 0; currNodeNum < outputWidth; currNodeNum++) {
+        	// set the deltas
+        	if (forwardData[layer][currNodeNum][0][0] > 0) {
+    			for (int nextNodeNum = 0; nextNodeNum < backwardData[layer].length; nextNodeNum++) {
+    				backwardData[layer - 1][currNodeNum][0][0] += 
+    						weights[currNodeNum][nextNodeNum] * backwardData[layer][nextNodeNum][0][0];
+            	}
+            	for (int nextNodeNum = 0; nextNodeNum < backwardData[layer].length; nextNodeNum++) {
+            		weights[currNodeNum][nextNodeNum] += 
+            				learningRate * forwardData[layer - 1][currNodeNum][0][0] * backwardData[layer][nextNodeNum][0][0];
+            	}
+            	bias[currNodeNum] -= learningRate * backwardData[layer][currNodeNum][0][0];
+    		}
         }
-		
 	}
 }

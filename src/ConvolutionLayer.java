@@ -94,6 +94,7 @@ public class ConvolutionLayer extends Layer {
                                 kernelElementDeltaSum +=
                                     derivOut* multiplier *
                                     forwardData[layer -1][kernel_j][output_i * step + kernel_k][output_j * step +kernel_l];
+                                	// is it forwardData[layer-1] or forwardData[layer]
                                 backwardData[layer-1][kernel_j][output_i*step + kernel_k][output_j*step + kernel_l]
                                     += derivOut*kernels[kernel_i][kernel_j][kernel_k][kernel_l] * multiplier ;
                             }
