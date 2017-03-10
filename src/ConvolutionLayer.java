@@ -7,7 +7,7 @@ public class ConvolutionLayer extends Layer {
     private double initRad;
 
     public ConvolutionLayer(int previousWidth, int previousDepth, int numKernels, int kernelWidth, int step, double initRad) {
-        super(previousWidth,previousDepth,(previousWidth + step - kernelWidth) / step, numKernels);
+        super(previousWidth, previousDepth, (previousWidth + step - kernelWidth) / step, numKernels);
         this.initRad = initRad;
         this.kernelWidth = kernelWidth;
         this.step = step;
@@ -27,7 +27,7 @@ public class ConvolutionLayer extends Layer {
             for (int j = 0; j < kernels[0].length; j++) {
                 for (int k = 0; k < kernels[0][0].length; k++) {
                     for(int l = 0; l < kernels[0][0][0].length; l ++)
-                    kernels[i][j][k][l] = (Math.random() - 0.5) * initRad;
+                        kernels[i][j][k][l] = (Math.random() - 0.5) * initRad;
                 }
             }
         }
@@ -65,9 +65,9 @@ public class ConvolutionLayer extends Layer {
         }
 
 
-        for(int kernel_i = 0; kernel_i < outputDepth; kernel_i ++){
+        for(int kernel_i = 0; kernel_i < outputDepth; kernel_i++) {
             double biasDeltaSum = 0;
-            for(int kernel_j = 0; kernel_j < previousDepth; kernel_j ++) {
+            for(int kernel_j = 0; kernel_j < previousDepth; kernel_j++) {
                 for (int kernel_k = 0; kernel_k < kernelWidth; kernel_k++) {
                     for (int kernel_l = 0; kernel_l < kernelWidth; kernel_l++) {
                         double kernelElementDeltaSum = 0;
@@ -98,5 +98,4 @@ public class ConvolutionLayer extends Layer {
             }
         }
     }
-
 }

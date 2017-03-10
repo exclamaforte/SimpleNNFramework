@@ -5,10 +5,14 @@ import java.util.List;
 public abstract class Layer {
     /* outputs new weights for the forward pass */
     public abstract void forward(int layer, double[][][][] forwardData, double cls);
-    /* takes in the propagated errors, and returns the new propagated errors. Presumably updates the weights within the layer as well */
-    public abstract void backwards(int layer, double[][][][] forwardData, double[][][][] backwardData, double learningRate);
+    /* takes in the propagated errors, and returns the new propagated errors.
+       Presumably updates the weights within the layer as well */
+    public abstract void backwards(int layer,
+                                   double[][][][] forwardData,
+                                   double[][][][] backwardData,
+                                   double learningRate);
     public abstract void randomInit();
-    public Layer(int previousWidth, int previousDepth, int outputWidth, int outputDepth){
+    public Layer(int previousWidth, int previousDepth, int outputWidth, int outputDepth) {
         this.previousWidth = previousWidth;
         this.previousDepth = previousDepth;
         this.outputDepth = outputDepth;
