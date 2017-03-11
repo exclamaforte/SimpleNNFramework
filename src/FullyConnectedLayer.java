@@ -3,9 +3,9 @@ public class FullyConnectedLayer extends Layer {
     private double bias[]; 
     private double radius = 0.1;
 
-    public FullyConnectedLayer(int previousWidth, int numHU) {
-    	super(previousWidth, 1, numHU, 1);
-    	weights = new double[numHU][previousWidth];
+    public FullyConnectedLayer(int previousDepth, int numHU) {
+    	super(1, previousDepth, 1, numHU);
+    	weights = new double[numHU][previousDepth];
     	bias = new double[numHU];
     }
 
@@ -19,9 +19,9 @@ public class FullyConnectedLayer extends Layer {
     }
 	@Override
 	public void forward(int layer, double[][][][] forwardData, double cls) {
-		for (int outIndex = 0; outIndex < outputWidth; outIndex++) {
+		for (int outIndex = 0; outIndex < outputDepth; outIndex++) {
 			double sum = 0.0;
-			for (int prevIndex = 0; prevIndex < previousWidth; prevIndex++) {
+			for (int prevIndex = 0; prevIndex < previousDepth; prevIndex++) {
 				sum += forwardData[layer - 1][prevIndex][0][0] * weights[outIndex][prevIndex];
 			}
 			sum += bias[outIndex];
@@ -39,7 +39,7 @@ public class FullyConnectedLayer extends Layer {
             }
         }
 
-        for (int currNodeNum = 0; currNodeNum < outputWidth; currNodeNum++) {
+        for (int currNodeNum = 0; currNodeNum < outputDepth; currNodeNum++) {
         	// set the deltas
         	if (forwardData[layer][currNodeNum][0][0] > 0) {
     			for (int nextNodeNum = 0; nextNodeNum < backwardData[layer].length; nextNodeNum++) {
