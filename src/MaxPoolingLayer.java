@@ -45,6 +45,11 @@ public class MaxPoolingLayer extends Layer {
     }
 
     @Override
+    public void forwardDropout(int layer, double[][][][] forwardData, double cls, boolean isTraining) {
+        forward(layer,forwardData,cls);
+    }
+
+    @Override
     public void backwards(int layer, double[][][][] forwardValues, double[][][][] backwardValues,double learningRate) {
         for (int imageNum = 0; imageNum < previousDepth; imageNum++) {
             for (int output_i = 0; output_i < outputWidth; output_i++) {

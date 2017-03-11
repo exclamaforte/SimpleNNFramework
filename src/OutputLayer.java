@@ -1,6 +1,8 @@
 //Implements softmax for classification
 
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 public class OutputLayer extends Layer {
 	private int outputSize;
 	public OutputLayer(int previousSize, int outputSize) {
@@ -29,14 +31,21 @@ public class OutputLayer extends Layer {
 	}
 
 	@Override
+	public void forwardDropout(int layer, double[][][][] forwardData, double cls, boolean isTraining) {
+		throw new NotImplementedException();
+	}
+
+	@Override
 	public void backwards(int layer, double[][][][] forwardData, double[][][][] backwardData, double learningRate) {
 		assert(false);
 	}
+
 	public void backwards(int layer, double[][][][] forwardData, double[][][][] backwardData, double learningRate, double[] target) {
 		for (int i = 0 ; i < outputSize; i++) {
 			backwardData[layer - 1][i][0][0] = forwardData[layer][i][0][0] - target[i];
 		}
 	}
+
 	@Override
 	public void randomInit() {
 	}
