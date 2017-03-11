@@ -7,8 +7,8 @@ public abstract class Layer {
     public static final double DropoutRate = 0.5;
 
     /* outputs new weights for the forward pass */
-    public abstract void forward(int layer, double[][][][] forwardData, double[] cls);
-    public abstract void forwardDropout(int layer, double[][][][] forwardData, double[] cls, boolean isTraining);
+    public abstract void forward(int layer, double[][][][] forwardData);
+    public abstract void forwardDropout(int layer, double[][][][] forwardData, boolean isTraining);
     /* takes in the propagated errors, and returns the new propagated errors.
        Presumably updates the weights within the layer as well */
     public abstract void backwards(int layer,

@@ -13,7 +13,7 @@ public class OutputLayer extends Layer {
 	private double[] expStorage;
 
 	@Override
-	public void forward(int layer, double[][][][] forwardData, double[] cls) {
+	public void forward(int layer, double[][][][] forwardData) {
 		assert(this.previousDepth == 1);
 		assert(this.previousWidth == outputSize);
 		//only one row
@@ -31,13 +31,13 @@ public class OutputLayer extends Layer {
 	}
 
 	@Override
-	public void forwardDropout(int layer, double[][][][] forwardData, double[] cls, boolean isTraining) {
-		throw new NotImplementedException();
+	public void forwardDropout(int layer, double[][][][] forwardData, boolean isTraining) {
+		forward(layer,forwardData);
 	}
 
 	@Override
 	public void backwards(int layer, double[][][][] forwardData, double[][][][] backwardData, double learningRate) {
-		assert(false);
+		throw new NotImplementedException();
 	}
 
 	public void backwards(int layer, double[][][][] forwardData, double[][][][] backwardData, double learningRate, double[] target) {

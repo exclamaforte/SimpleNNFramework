@@ -150,7 +150,7 @@ public class Lab3 {
 
         double[][][][] trainImages = new double[trainset.getSize()][3][trainset.getImageWidth()][trainset.getImageHeight()];
         double[][][][] tuneImages  = new double[tuneset.getSize()][3][tuneset.getImageWidth()][tuneset.getImageHeight()];
-        double[][][][] testFeatureVectors  = new double[testset.getSize()][3][testset.getImageWidth()][testset.getImageHeight()];
+        double[][][][] testImages  = new double[testset.getSize()][3][testset.getImageWidth()][testset.getImageHeight()];
 
         double[][] trainLabels = new double[trainset.getSize()][Num_Classes];
         double[][] tuneLabels = new double[tuneset.getSize()][Num_Classes];
@@ -159,7 +159,7 @@ public class Lab3 {
 
         fillInstanceArrays(trainImages, trainLabels,trainset);
         fillInstanceArrays(tuneImages, tuneLabels,  tuneset);
-        fillInstanceArrays(testFeatureVectors, testLabels,  testset);
+        fillInstanceArrays(testImages, testLabels,  testset);
 
         
 
@@ -174,11 +174,61 @@ public class Lab3 {
 
         runEarlyStopping(nn,trainImages,trainLabels, tuneImages, tuneLabels);
 
+        double[][] testPredictions = new double[testLabels.length][Num_Classes];
+        nn.predict(testPredictions, testImages);
+
+        System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
+
+        NeuralNetwork.printConfusionMatrix(testLabels,testPredictions);
+
         return -1;
     }
-    
+
+    public static final int starting_patience = 10;
+    public static final float patience_mult = 2;
+    public static final int validation_wait = 5;
+    public static final double improvement_threshold = 0.995;
+
     public static void runEarlyStopping(NeuralNetwork net, double[][][][] trainImages, double[][] trainClassLabels, double[][][][] tuneImages, double[][] tuneClassLabels){
-        
+        double bestLoss = Double.POSITIVE_INFINITY;
+        double[][] predictStorage = new double[tuneClassLabels.length][Num_Classes];
+        int patience = starting_patience;
+        int epoch = 0;
+        while(epoch < maxEpochs){
+            shuffle(trainImages,trainClassLabels);
+            net.train(trainImages,trainClassLabels);
+            if((epoch + 1)% validation_wait == 0){
+                double loss = calc01Loss(net,tuneImages,tuneClassLabels,predictStorage);
+                if(loss < (bestLoss)){
+                    if(loss < (bestLoss * improvement_threshold))
+                        patience = (int) Math.max(patience, epoch * patience_mult);
+                    bestLoss = loss;
+                    net.cacheCurrentBestTuneWeights();
+                }
+                //I've run out of patience
+                else if(epoch > patience){
+                    break;
+                }
+            }
+            epoch ++;
+        }
+        //Set best weights to best based off tuning set
+        net.resetToBestTuningWeights();
+    }
+
+    private static double calc01Loss(NeuralNetwork nnet, double[][][][] images, double[][] classLabels, double[][] predictStorage){
+        nnet.predict(predictStorage,images);
+        return calc01Loss(classLabels,predictStorage);
+    }
+
+    private static double calc01Loss(double[][] predicted, double[][] actual){
+        double correct = 0;
+        for(int i = 0; i < actual.length; i ++){
+            for(int j = 0; j < Num_Classes; j ++){
+                correct += actual[i][j] * predicted[i][j];
+            }
+        }
+        return 1- correct / actual.length;
     }
 
     private static double[][] convertDouble(int[][] in) {
