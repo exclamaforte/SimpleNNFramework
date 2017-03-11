@@ -17,6 +17,12 @@ public class Dataset {
 	public int getSize() {
 		return instances.size();
 	}
+	public int getImageWidth() {
+		return instances.get(0).getWidth();
+	}
+	public int getImageHeight() {
+		return instances.get(0).getHeight();
+	}
 	public ArrayList<Instance> getImages() {
 		return instances;
 	}

@@ -18,7 +18,7 @@ public class Instance {
 
     // Constructor
     // given the bufferedimage and its class label
-    // get the
+    // get the 
     public Instance(BufferedImage image, String label) {
         this.image = image;
         this.label = label;

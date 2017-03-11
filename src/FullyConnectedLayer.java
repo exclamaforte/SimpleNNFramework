@@ -19,19 +19,6 @@ public class FullyConnectedLayer extends Layer {
     }
 	@Override
 	public void forward(int layer, double[][][][] forwardData, double cls) {
-		/*for(int outIndex = 0; outIndex < outputWidth; outIndex++){
-			double sum = 0;
-			for(int depth = 0; k < previousDepth; k ++) {
-				for(int l = 0; l < kernelWidth; l ++) {
-					for(int m = 0; m < kernelWidth; m ++) {
-						sum += forwardData[layer -1][k][i * step + l][i * step + m] * kernels[kernel][k][l][m];
-					}
-				}
-			}
-			sum += biases[kernel];
-			forwardData[layer][kernel][i][j] = Math.max(0, sum);
-		}*/
- 
 		for (int outIndex = 0; outIndex < outputWidth; outIndex++) {
 			double sum = 0.0;
 			for (int prevIndex = 0; prevIndex < previousWidth; prevIndex++) {
