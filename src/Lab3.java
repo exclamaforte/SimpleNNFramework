@@ -62,34 +62,18 @@ public class Lab3 {
 
         // Here are statements with the absolute path to open images folder
         File trainsetDir = new File(trainDirectory);
-        File tunesetDir  = new File( tuneDirectory);
-        File testsetDir  = new File( testDirectory);
+        File tunesetDir  = new File(tuneDirectory);
+        File testsetDir  = new File(testDirectory);
 
         // create three datasets
         Dataset trainset = new Dataset();
-        Dataset  tuneset = new Dataset();
-        Dataset  testset = new Dataset();
+        Dataset tuneset  = new Dataset();
+        Dataset testset  = new Dataset();
 
-        // Load in images into datasets.
-        long start = System.currentTimeMillis();
         loadDataset(trainset, trainsetDir);
-        System.out.println("The trainset contains " + comma(trainset.getSize()) + " examples.  Took " + convertMillisecondsToTimeSpan(System.currentTimeMillis() - start) + ".");
-
-        start = System.currentTimeMillis();
         loadDataset(tuneset, tunesetDir);
-        System.out.println("The  testset contains " + comma( tuneset.getSize()) + " examples.  Took " + convertMillisecondsToTimeSpan(System.currentTimeMillis() - start) + ".");
-
-        start = System.currentTimeMillis();
         loadDataset(testset, testsetDir);
-        System.out.println("The  tuneset contains " + comma( testset.getSize()) + " examples.  Took " + convertMillisecondsToTimeSpan(System.currentTimeMillis() - start) + ".");
-
-
-        // Now train a Deep ANN.  You might wish to first use your Lab 2 code here and see how one layer of HUs does.  Maybe even try your perceptron code.
-        // We are providing code that converts images to feature vectors.  Feel free to discard or modify.
-        start = System.currentTimeMillis();
         trainANN(trainset, tuneset, testset);
-        System.out.println("\nTook " + convertMillisecondsToTimeSpan(System.currentTimeMillis() - start) + " to train.");
-
     }
 
     public static void loadDataset(Dataset dataset, File dir) {
@@ -159,43 +143,39 @@ public class Lab3 {
         // Pixel values are integers in [0,255], which we convert to a double in [0.0, 1.0].
         // The last item in a feature vector is the CATEGORY, encoded as a double in 0 to the size on the Category enum.
         // We do not explicitly store the '-1' that is used for the bias.  Instead code (to be written) will need to implicitly handle that extra feature.
-        System.out.println("\nThe input vector size is " + comma(inputVectorSize - 1) + ".\n");
 
-        ArrayList<ArrayList<Double>> trainFeatureVectors = new ArrayList<ArrayList<Double>>(trainset.getSize());
-        ArrayList<ArrayList<Double>>  tuneFeatureVectors = new ArrayList<ArrayList<Double>>(tuneset.getSize());
-        ArrayList<ArrayList<Double>>  testFeatureVectors = new ArrayList<ArrayList<Double>>(testset.getSize());
-
-        long start = System.currentTimeMillis();
+        double[][][][] trainFeatureVectors = new double[trainset.getSize()][3][trainset.getImageWidth()][trainset.getImageHeight()];
+        double[][][][] testFeatureVectors  = new double[tuneset.getSize()][3][tuneset.getImageWidth()][tuneset.getImageHeight()];
+        double[][][][] tuneFeatureVectors  = new double[testset.getSize()][3][testset.getImageWidth()][testset.getImageHeight()];
+                
         fillFeatureVectors(trainFeatureVectors, trainset);
-        System.out.println("Converted " + trainFeatureVectors.size() + " TRAIN examples to feature vectors. Took " + convertMillisecondsToTimeSpan(System.currentTimeMillis() - start) + ".");
+        fillFeatureVectors(tuneFeatureVectors,  tuneset);
+        fillFeatureVectors(testFeatureVectors,  testset);
 
-        start = System.currentTimeMillis();
-        fillFeatureVectors( tuneFeatureVectors,  tuneset);
-        System.out.println("Converted " +  tuneFeatureVectors.size() + " TUNE  examples to feature vectors. Took " + convertMillisecondsToTimeSpan(System.currentTimeMillis() - start) + ".");
-
-        start = System.currentTimeMillis();
-        fillFeatureVectors( testFeatureVectors,  testset);
-        System.out.println("Converted " +  testFeatureVectors.size() + " TEST  examples to feature vectors. Took " + convertMillisecondsToTimeSpan(System.currentTimeMillis() - start) + ".");
-
-        System.out.println("\nTime to start learning!");
+        
 
         // Call your Deep ANN here.  We recommend you create a separate class file for that during testing and debugging, but before submitting your code cut-and-paste that code here.
-        NeuralNetwork nn = new NeuralNetwork(inputVectorSize, Category.values().length);
+        NeuralNetwork nn = new NeuralNetwork(trainset.getImageWidth(), 3, Category.values().length);
         int numHU = 20;
-        nn.addConvolutionLayer(5, numHU, sampleImage.getWidth(), sampleImage.getHeight());
-        nn.addMaxPoolingLayer(2, numHU, sampleImage.getWidth(), sampleImage.getHeight());
-        nn.addConvolutionLayer(5, numHU, sampleImage.getWidth(), sampleImage.getHeight());
-        nn.addMaxPoolingLayer(2, numHU, sampleImage.getWidth(), sampleImage.getHeight());
-        nn.addConvolutionLayer(3, numHU, sampleImage.getWidth(), sampleImage.getHeight());
-        nn.addFullyConnectedLayer(300);
-        nn.train(trainFeatureVectors, tuneFeatureVectors);
-        nn.test(testFeatureVectors);
+        // calling goes here.
         return -1;
     }
-
-    private static void fillFeatureVectors(ArrayList<ArrayList<Double>> featureVectors, Dataset dataset) {
-        for (Instance image : dataset.getImages()) {
-            featureVectors.addElement(convertToFeatureVector(image));
+    private static double[][] convertDouble(int[][] in) {
+    	double[][] ret = new double[in.length][in[0].length];
+    	for (int i = 0; i < in.length; i++) {
+    		for (int j = 0; j < in[i].length; j++) {
+    			ret[i][j] = (double)in[i][j];
+    		}
+    	}
+    	return ret;
+    }
+    private static void fillFeatureVectors(double[][][][] featureVectors, Dataset d) {
+    	int i = 0;
+        for (Instance image : d.getImages()) {
+        	featureVectors[i][0] = convertDouble(image.getRedChannel());
+        	featureVectors[i][1] = convertDouble(image.getGreenChannel());
+        	featureVectors[i][2] = convertDouble(image.getBlueChannel());
+        	i++;
         }
     }
 
@@ -221,7 +201,7 @@ public class Lab3 {
 
         return result;
     }
-
+    //TODO Shuffle the data
     ////////////////////  Some utility methods (cut-and-pasted from JWS' Utils.java file). ///////////////////////////////////////////////////
 
     private static final long millisecInMinute = 60000;
