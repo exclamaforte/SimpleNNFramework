@@ -113,7 +113,8 @@ public class NeuralNetwork {
 
             output.backwards(i,forward,backward, learningRate, trainClass[instidx]);
             i--;
-            for (Layer l : this.layers) {
+            for(int layer_idx = layers.size() -1; layer_idx >= 0; layer_idx --){
+                Layer l = layers.get(layer_idx);
                 l.backwards(i,forward,backward,LEARNING_RATE);
                 i--;
             }
