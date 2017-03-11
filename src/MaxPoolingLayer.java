@@ -21,6 +21,16 @@ public class MaxPoolingLayer extends Layer {
     }
 
     @Override
+    public void cacheBestWeights() {
+        //do nothing
+    }
+
+    @Override
+    public void resetToBestWeights(){
+        //do nothing
+    }
+
+    @Override
     public void forward(int layer, double[][][][] forwardData, double[] cls) {
         double[][][] data = forwardData[layer-1];
         assert(data.length == previousDepth);

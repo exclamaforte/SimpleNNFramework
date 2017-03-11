@@ -177,4 +177,11 @@ public class NeuralNetwork {
         // TODO: Iterate through the confusion matrix column-by-column (and assert each column sum equals numInstances)
     }
 
+    public void cacheCurrentBestTuneWeights(){
+        for (Layer l: layers
+             ) {
+
+        }
+    }
+
 }

@@ -41,4 +41,7 @@ public abstract class Layer {
     public int getPreviousDepth(){
         return previousDepth;
     }
+
+    public abstract void cacheBestWeights();
+    public abstract void resetToBestWeights();
 }

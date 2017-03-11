@@ -50,4 +50,13 @@ public class OutputLayer extends Layer {
 	public void randomInit() {
 	}
 
+	@Override
+	public void cacheBestWeights() {
+		//do nothing
+	}
+	@Override
+	public void resetToBestWeights(){
+		//do nothing
+	}
+
 }
