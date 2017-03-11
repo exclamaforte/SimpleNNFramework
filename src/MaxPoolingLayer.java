@@ -21,7 +21,7 @@ public class MaxPoolingLayer extends Layer {
     }
 
     @Override
-    public void forward(int layer, double[][][][] forwardData, double cls) {
+    public void forward(int layer, double[][][][] forwardData, double[] cls) {
         double[][][] data = forwardData[layer-1];
         assert(data.length == previousDepth);
         assert(data[0].length == previousWidth);
@@ -45,7 +45,7 @@ public class MaxPoolingLayer extends Layer {
     }
 
     @Override
-    public void forwardDropout(int layer, double[][][][] forwardData, double cls, boolean isTraining) {
+    public void forwardDropout(int layer, double[][][][] forwardData, double[] cls, boolean isTraining) {
         forward(layer,forwardData,cls);
     }
 

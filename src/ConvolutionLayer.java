@@ -47,7 +47,7 @@ public class ConvolutionLayer extends Layer {
     }
 
     @Override
-    public void forward(int layer, double[][][][] forwardData, double cls) {
+    public void forward(int layer, double[][][][] forwardData, double[] cls) {
         for(int output_i = 0; output_i < outputDepth; output_i ++){
             for(int output_j = 0; output_j < outputWidth; output_j ++){
                 for(int output_k = 0; output_k < outputWidth; output_k ++){
@@ -70,7 +70,7 @@ public class ConvolutionLayer extends Layer {
     }
 
     @Override
-    public void forwardDropout(int layer, double[][][][] forwardData, double cls, boolean isTraining) {
+    public void forwardDropout(int layer, double[][][][] forwardData, double[] cls, boolean isTraining) {
         for(int i = 0; i < outputDepth; i ++){
             for(int j = 0;  j < outputWidth;  j ++){
                 for(int k = 0; k < outputWidth; k ++){
@@ -142,6 +142,7 @@ public class ConvolutionLayer extends Layer {
 
     public static void main(String[] args){
 
+        /*
 
 
 
@@ -321,7 +322,7 @@ public class ConvolutionLayer extends Layer {
 
 
 
-
+*/
     }
 
     public static double sum(double[][][] arr){

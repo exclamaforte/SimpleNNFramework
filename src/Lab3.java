@@ -29,7 +29,17 @@ public class Lab3 {
     // Images are imageSize x imageSize.  The provided data is 128x128, but this can be resized by setting this value (or passing in an argument).
     // You might want to resize to 8x8, 16x16, 32x32, or 64x64; this can reduce your network size and speed up debugging runs.
     // ALL IMAGES IN A TRAINING RUN SHOULD BE THE *SAME* SIZE.
-    private static enum    Category { airplanes, butterfly, flower, grand_piano, starfish, watch };  // We'll hardwire these in, but more robust code would not do so.
+    private static enum    Category {
+        airplanes(0) , butterfly(1), flower(2), grand_piano(3), starfish(4), watch(5);
+
+        private final int value;
+        private Category(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }};  // We'll hardwire these in, but more robust code would not do so.
 
     private static final Boolean    useRGB = false;
     // If true, FOUR units are used per pixel: red, green, blue, and grey.  If false, only ONE (the grey-scale value).
@@ -148,7 +158,15 @@ public class Lab3 {
         double[][][][] tuneFeatureVectors  = new double[tuneset.getSize()][3][tuneset.getImageWidth()][tuneset.getImageHeight()];
         double[][][][] testFeatureVectors  = new double[testset.getSize()][3][testset.getImageWidth()][testset.getImageHeight()];
 
-        double[][] trainClassVector 
+        double[][] trainClassVector = new double[trainFeatureVectors.length][6];
+
+        ArrayList<Instance> trainInstances = trainset.getImages();
+
+        for(int i = 0; i < trainInstances.size(); i ++){
+            Category category = convertCategoryStringToEnum(trainInstances.get(i).getLabel());
+
+            trainClassVector[i][category.getValue()] = 1;
+        }
 
 
         fillFeatureVectors(trainFeatureVectors, trainset);
@@ -167,7 +185,7 @@ public class Lab3 {
         nn.addFullyConnectedLayer(6);
         nn.addOutputLayer();
 
-        nn.train(trainFeatureVectors, );
+        nn.train(trainFeatureVectors,trainClassVector);
 
         return -1;
     }

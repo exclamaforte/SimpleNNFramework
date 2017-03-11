@@ -24,7 +24,7 @@ public class FullyConnectedLayer extends Layer {
     }
 
 	@Override
-	public void forward(int layer, double[][][][] forwardData, double cls) {
+	public void forward(int layer, double[][][][] forwardData, double[] cls) {
 		for (int outIndex = 0; outIndex < outputDepth; outIndex++) {
 			double sum = 0.0;
 			for (int prevIndex = 0; prevIndex < previousDepth; prevIndex++) {
@@ -36,7 +36,7 @@ public class FullyConnectedLayer extends Layer {
 	}
 
 	@Override
-	public void forwardDropout(int layer, double[][][][] forwardData, double cls, boolean isTraining) {
+	public void forwardDropout(int layer, double[][][][] forwardData, double[] cls, boolean isTraining) {
 		for(int i = 0; i < dropoutMultiplier.length; i ++){
 			if(isTraining)
 				dropoutMultiplier[i] = (Math.random() < DropoutRate ? 0 : 1);

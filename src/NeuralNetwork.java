@@ -83,7 +83,7 @@ public class NeuralNetwork {
         }
         this.output = new OutputLayer(previousDepth, outputClasses);
     }
-    public void train(double[][][][] train, double[] trainClass) {
+    public void train(double[][][][] train, double[][] trainClass) {
 
         //initialize forward and backward arrays
         double[][][][] forward = new double[this.layers.size() + 2][][][];
@@ -111,7 +111,7 @@ public class NeuralNetwork {
             output.forward(i, forward,  trainClass[instidx]);
 
 
-            output.backwards(i,forward,backward, learningRate, trainClass);
+            output.backwards(i,forward,backward, learningRate, trainClass[instidx]);
             i--;
             for (Layer l : this.layers) {
                 l.backwards(i,forward,backward,LEARNING_RATE);
