@@ -124,4 +124,57 @@ public class NeuralNetwork {
     public void test(double[][][] test, double[][][] testClass) {
 
     }
+
+    // Takes two arrays, then calculates and prints a confusion matrix
+    // First array of 2D vector is an array of instance classifications. 2nd array is the 1-hot classification
+    public static void printConfusionMatrix(double[][] expectedOutputClasses, double[][] actualOutputClasses) {
+
+        assert(expectedOutputClasses.length == actualOutputClasses.length);
+        assert(expectedOutputClasses[0].length == actualOutputClasses[0].length);
+
+        int numClasses = expectedOutputClasses[0].length;
+        int numInstances = expectedOutputClasses.length;
+
+        // First array index is PREDICTED, second index is CORRECT (according to confznmatr picture from lab3.ppt)
+        int[][] confusionMatrix = new int[numClasses][numClasses];
+
+        // Iterate through instances (index 'i' points to each instance)
+        for(int i = 0; i < numInstances; i++) {
+            double[] expectedClass = expectedOutputClasses[i];
+            double[] actualClass = actualOutputClasses[i];
+
+            // Iterate through predicted class
+            for(int k = 0; k < expectedClass.length; k++) {
+
+                // Iterate through actual class
+                for(int j = 0; j < actualClass.length; j++) {
+
+                    // Confusion determination logic
+                    if(expectedClass[k] == 1 && actualClass[j] == 1) confusionMatrix[k][j]++;
+                    else if(expectedClass[k] == 0 && actualClass[j] == 1) confusionMatrix[k][j]++;
+                    else if(expectedClass[k] == 1 && actualClass[j] == 1) confusionMatrix[k][j]++;
+                }
+            }
+        }
+
+        // TODO: Print the matrix
+
+        // The sole purpose of the following code is to guarantee that each row & each column adds to the correct sum
+        // (which is the number of total instances) -- again, refer to confusion matrix picture from lab3.ppt
+        int rowSum = 0;
+        int colSum = 0;
+
+        // Iterate through the confusion matrix row-by-row
+        // j is actual
+        for(int j = 0; j < confusionMatrix.length; j++) {
+            // k is predicted
+            for(int k = 0; k < confusionMatrix[j].length; k++) {
+                rowSum += confusionMatrix[k][j];
+            }
+            assert(rowSum == numInstances);
+        }
+
+        // TODO: Iterate through the confusion matrix column-by-column (and assert each column sum equals numInstances)
+    }
+
 }
