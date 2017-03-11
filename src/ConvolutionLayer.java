@@ -7,6 +7,7 @@ public class ConvolutionLayer extends Layer {
     public double[][][][] kernels;
     public double[] biases;
     private double initRad;
+    private double[][][] dropoutMultiplier;
 
     public ConvolutionLayer(int previousWidth, int previousDepth, int numKernels, int kernelWidth, int step, double initRad) {
         super(previousWidth, previousDepth, (previousWidth + step - kernelWidth) / step, numKernels);
@@ -19,8 +20,15 @@ public class ConvolutionLayer extends Layer {
 
         kernels = new double[numKernels][previousDepth][kernelWidth][kernelWidth];
         biases = new double[numKernels];
+        dropoutMultiplier = new double[outputDepth][outputWidth][outputWidth];
 
-
+        for(int i = 0; i < outputDepth; i ++){
+            for(int j = 0; j < outputWidth; j ++){
+                for(int k = 0; k < outputWidth; k ++){
+                    dropoutMultiplier[i][j][k] = 1;
+                }
+            }
+        }
 
     }
 
@@ -44,18 +52,38 @@ public class ConvolutionLayer extends Layer {
             for(int output_j = 0; output_j < outputWidth; output_j ++){
                 for(int output_k = 0; output_k < outputWidth; output_k ++){
                     double sum = 0;
-                    for(int kernel_i = 0; kernel_i < previousDepth; kernel_i ++){
-                        for(int kernel_j = 0; kernel_j < kernelWidth; kernel_j ++){
-                            for(int kernel_k = 0; kernel_k < kernelWidth; kernel_k ++){
-                                sum += forwardData[layer -1][kernel_i][output_j * step + kernel_j][output_k * step + kernel_k] * kernels[output_i][kernel_i][kernel_j][kernel_k];
+                    if(dropoutMultiplier[output_i][output_j][output_k] != 0) {
+                        for (int kernel_i = 0; kernel_i < previousDepth; kernel_i++) {
+                            for (int kernel_j = 0; kernel_j < kernelWidth; kernel_j++) {
+                                for (int kernel_k = 0; kernel_k < kernelWidth; kernel_k++) {
+                                    sum += forwardData[layer - 1][kernel_i][output_j * step + kernel_j][output_k * step + kernel_k] * kernels[output_i][kernel_i][kernel_j][kernel_k];
+                                }
                             }
                         }
+                        sum += biases[output_i];
                     }
-                    sum += biases[output_i];
-                    forwardData[layer][output_i][output_j][output_k] = Math.max(0.01* sum, sum);
+                    forwardData[layer][output_i][output_j][output_k] = dropoutMultiplier[output_i][output_j][output_k] *
+                            Math.max(0.01 * sum, sum);
                 }
             }
         }
+    }
+
+    @Override
+    public void forwardDropout(int layer, double[][][][] forwardData, double cls, boolean isTraining) {
+        for(int i = 0; i < outputDepth; i ++){
+            for(int j = 0;  j < outputWidth;  j ++){
+                for(int k = 0; k < outputWidth; k ++){
+                    if(isTraining){
+                        dropoutMultiplier[i][j][k] = (Math.random() < DropoutRate ? 0 : 1);
+                    }
+                    else{
+                        dropoutMultiplier[i][j][k] = 1 - DropoutRate;
+                    }
+                }
+            }
+        }
+        forward(layer,forwardData,cls);
     }
 
     @Override
@@ -79,24 +107,26 @@ public class ConvolutionLayer extends Layer {
                         for (int output_i = 0; output_i < outputWidth; output_i++) {
                             for (int output_j = 0; output_j < outputWidth; output_j++) {
 
-                                double multiplier = 1;
-                                // check if leaky
-                                if(forwardData[layer][kernel_i][output_i][output_j] <= 0)
-                                    multiplier = 0.01;
+                                if(dropoutMultiplier[kernel_i][output_i][output_j]!= 0) {
+                                    double multiplier = 1;
+                                    // check if leaky
+                                    if (forwardData[layer][kernel_i][output_i][output_j] <= 0)
+                                        multiplier = 0.01;
 
-                                double derivOut = backwardData[layer][kernel_i][output_i][output_j];
+                                    double derivOut = backwardData[layer][kernel_i][output_i][output_j];
 
-                                //only calculate bias term once
-                                //Im sorry if this code makes you mad
-                                if(kernel_j == 0 && kernel_k == 0 && kernel_l == 0)
-                                    biasDeltaSum += derivOut*multiplier;
+                                    //only calculate bias term once
+                                    //Im sorry if this code makes you mad
+                                    if (kernel_j == 0 && kernel_k == 0 && kernel_l == 0)
+                                        biasDeltaSum += derivOut * multiplier;
 
-                                kernelElementDeltaSum +=
-                                    derivOut* multiplier *
-                                    forwardData[layer -1][kernel_j][output_i * step + kernel_k][output_j * step +kernel_l];
-                                	// is it forwardData[layer-1] or forwardData[layer]
-                                backwardData[layer-1][kernel_j][output_i*step + kernel_k][output_j*step + kernel_l]
-                                    += derivOut*kernels[kernel_i][kernel_j][kernel_k][kernel_l] * multiplier ;
+                                    kernelElementDeltaSum +=
+                                            derivOut * multiplier *
+                                                    forwardData[layer - 1][kernel_j][output_i * step + kernel_k][output_j * step + kernel_l];
+                                    // is it forwardData[layer-1] or forwardData[layer]
+                                    backwardData[layer - 1][kernel_j][output_i * step + kernel_k][output_j * step + kernel_l]
+                                            += derivOut * kernels[kernel_i][kernel_j][kernel_k][kernel_l] * multiplier;
+                                }
                             }
                         }
                         kernels[kernel_i][kernel_j][kernel_k][kernel_l] -= kernelElementDeltaSum* learningRate;

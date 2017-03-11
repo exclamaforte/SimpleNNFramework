@@ -2,11 +2,16 @@ public class FullyConnectedLayer extends Layer {
     private double[][] weights;
     private double bias[]; 
     private double radius = 0.1;
+	private double[] dropoutMultiplier;
 
     public FullyConnectedLayer(int previousDepth, int numHU) {
     	super(1, previousDepth, 1, numHU);
     	weights = new double[numHU][previousDepth];
     	bias = new double[numHU];
+		dropoutMultiplier = new double[numHU];
+		for(int i = 0; i < numHU; i ++){
+			dropoutMultiplier[i] = 1;
+		}
     }
 
     @Override
@@ -17,6 +22,7 @@ public class FullyConnectedLayer extends Layer {
             }
         }
     }
+
 	@Override
 	public void forward(int layer, double[][][][] forwardData, double cls) {
 		for (int outIndex = 0; outIndex < outputDepth; outIndex++) {
@@ -25,7 +31,17 @@ public class FullyConnectedLayer extends Layer {
 				sum += forwardData[layer - 1][prevIndex][0][0] * weights[outIndex][prevIndex];
 			}
 			sum += bias[outIndex];
-			forwardData[layer][outIndex][0][0] = Math.max(0, sum);
+			forwardData[layer][outIndex][0][0] = dropoutMultiplier[outIndex]*Math.max(0, sum);
+		}
+	}
+
+	@Override
+	public void forwardDropout(int layer, double[][][][] forwardData, double cls, boolean isTraining) {
+		for(int i = 0; i < dropoutMultiplier.length; i ++){
+			if(isTraining)
+				dropoutMultiplier[i] = (Math.random() < DropoutRate ? 0 : 1);
+			else
+				dropoutMultiplier[i] = 1-DropoutRate;
 		}
 	}
 
@@ -42,11 +58,11 @@ public class FullyConnectedLayer extends Layer {
         for (int currNodeNum = 0; currNodeNum < outputDepth; currNodeNum++) {
         	// set the deltas
         	if (forwardData[layer][currNodeNum][0][0] > 0) {
-    			for (int nextNodeNum = 0; nextNodeNum < backwardData[layer].length; nextNodeNum++) {
+    			for (int nextNodeNum = 0; nextNodeNum < previousDepth; nextNodeNum++) {
     				backwardData[layer - 1][currNodeNum][0][0] += 
     						weights[currNodeNum][nextNodeNum] * backwardData[layer][nextNodeNum][0][0];
             	}
-            	for (int nextNodeNum = 0; nextNodeNum < backwardData[layer].length; nextNodeNum++) {
+            	for (int nextNodeNum = 0; nextNodeNum < previousDepth; nextNodeNum++) {
             		weights[currNodeNum][nextNodeNum] += 
             				learningRate * forwardData[layer - 1][currNodeNum][0][0] * backwardData[layer][nextNodeNum][0][0];
             	}
