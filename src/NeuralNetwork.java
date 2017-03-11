@@ -29,6 +29,8 @@ public class NeuralNetwork {
     }
 
     public static double Convolution_Initial_Radius = 0.1;
+
+    // Only set width (not height) because we're assuming it's a square
     public void addConvolutionLayer(int numKernels, int kernelWidth, int step) {
         int previousWidth;
         int previousDepth;

@@ -145,9 +145,12 @@ public class Lab3 {
         // We do not explicitly store the '-1' that is used for the bias.  Instead code (to be written) will need to implicitly handle that extra feature.
 
         double[][][][] trainFeatureVectors = new double[trainset.getSize()][3][trainset.getImageWidth()][trainset.getImageHeight()];
-        double[][][][] testFeatureVectors  = new double[tuneset.getSize()][3][tuneset.getImageWidth()][tuneset.getImageHeight()];
-        double[][][][] tuneFeatureVectors  = new double[testset.getSize()][3][testset.getImageWidth()][testset.getImageHeight()];
-                
+        double[][][][] tuneFeatureVectors  = new double[tuneset.getSize()][3][tuneset.getImageWidth()][tuneset.getImageHeight()];
+        double[][][][] testFeatureVectors  = new double[testset.getSize()][3][testset.getImageWidth()][testset.getImageHeight()];
+
+        double[][] trainClassVector 
+
+
         fillFeatureVectors(trainFeatureVectors, trainset);
         fillFeatureVectors(tuneFeatureVectors,  tuneset);
         fillFeatureVectors(testFeatureVectors,  testset);
@@ -158,6 +161,14 @@ public class Lab3 {
         NeuralNetwork nn = new NeuralNetwork(trainset.getImageWidth(), 3, Category.values().length);
         int numHU = 20;
         // calling goes here.
+        nn.addConvolutionLayer(10, 4, 2);
+        nn.addMaxPoolingLayer(15, 15);
+        nn.addFullyConnectedLayer(10);
+        nn.addFullyConnectedLayer(6);
+        nn.addOutputLayer();
+
+        nn.train(trainFeatureVectors, );
+
         return -1;
     }
     private static double[][] convertDouble(int[][] in) {
