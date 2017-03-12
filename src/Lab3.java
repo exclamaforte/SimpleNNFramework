@@ -165,14 +165,16 @@ public class Lab3 {
 
         
 
-        NeuralNetwork nn = new NeuralNetwork(trainset.getImageWidth(), 3, Category.values().length);
+        NeuralNetwork nn = new NeuralNetwork(trainset.getImageWidth(), 3, Category.values().length,true);
         int numHU = 20;
         // calling goes here.
-        nn.addConvolutionLayer(6, 32, 32);
-        /*
-        nn.addMaxPoolingLayer(15, 15);
-        nn.addFullyConnectedLayer(10);
-        nn.addFullyConnectedLayer(6);*/
+        nn.addConvolutionLayer(12, 32, 32);
+
+        nn.addMaxPoolingLayer(1, 1);
+        nn.addConvolutionLayer(6,1,1);
+
+        //nn.addFullyConnectedLayer(6);
+       // nn.addFullyConnectedLayer(6);
 
         nn.addOutputLayer();
 
@@ -182,7 +184,7 @@ public class Lab3 {
         nn.predict(testPredictions, testImages);
 
         System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
-
+/*
         nn.printConfusionMatrix(testLabels,testPredictions);
 
         // =================
@@ -248,10 +250,10 @@ public class Lab3 {
 
         System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
 
-        nn.printConfusionMatrix(testLabels,testPredictions);
+        nn.printConfusionMatrix(testLabels,testPredictions);*/
         return -1;
     }
-    public static final int starting_patience = 1000;
+    public static final int starting_patience = 10;
     public static final float patience_mult = 2;
     public static final int validation_wait = 5;
     public static final double improvement_threshold = 0.995;
@@ -259,18 +261,21 @@ public class Lab3 {
     public static void runEarlyStopping(NeuralNetwork net, double[][][][] trainImages, double[][] trainClassLabels, double[][][][] tuneImages, double[][] tuneClassLabels){
         double bestLoss = Double.POSITIVE_INFINITY;
         double[][] predictStorage = new double[tuneClassLabels.length][Num_Classes];
+        double[][] trainingStorage = new double[trainClassLabels.length][Num_Classes];
         int patience = starting_patience;
         int epoch = 0;
         while(epoch < maxEpochs){
             if(debug_flag)
-                System.out.print("Epoch " + (epoch +1));
+                System.out.println("Epoch " + (epoch +1));
             shuffle(trainImages,trainClassLabels);
             net.train(trainImages,trainClassLabels);
             if((epoch + 1)% validation_wait == 0){
 
                 double loss = calc01Loss(net,tuneImages,tuneClassLabels,predictStorage);
-                if(debug_flag)
-                    System.out.println("Current 01 loss: "+ loss);
+                if(debug_flag) {
+                    System.out.println("Current 01 tune loss: " + loss);
+                    System.out.println("Current 01 train loss" + calc01Loss(net,trainImages,trainClassLabels,trainingStorage));
+                }
                 if(loss < (bestLoss)){
                     if(loss < (bestLoss * improvement_threshold))
                         patience = (int) Math.max(patience, epoch * patience_mult);
