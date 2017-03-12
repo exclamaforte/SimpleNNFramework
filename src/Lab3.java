@@ -24,7 +24,9 @@ import javax.imageio.ImageIO;
 
 public class Lab3 {
 
-    private static int     imageSize = 8;
+    public static final boolean debug_flag = true;
+
+    private static int     imageSize = 32;
     // Images are imageSize x imageSize.  The provided data is 128x128, but this can be resized by setting this value (or passing in an argument).
     // You might want to resize to 8x8, 16x16, 32x32, or 64x64; this can reduce your network size and speed up debugging runs.
     // ALL IMAGES IN A TRAINING RUN SHOULD BE THE *SAME* SIZE.
@@ -244,10 +246,7 @@ public class Lab3 {
         NeuralNetwork.printConfusionMatrix(testLabels,testPredictions);
         return -1;
     }
-    public static void runTests(NeuralNetwork nn) {
-    	
-    }
-    public static final int starting_patience = 10;
+    public static final int starting_patience = 1000;
     public static final float patience_mult = 2;
     public static final int validation_wait = 5;
     public static final double improvement_threshold = 0.995;
@@ -258,10 +257,15 @@ public class Lab3 {
         int patience = starting_patience;
         int epoch = 0;
         while(epoch < maxEpochs){
+            if(debug_flag)
+                System.out.print("Epoch " + (epoch +1));
             shuffle(trainImages,trainClassLabels);
             net.train(trainImages,trainClassLabels);
             if((epoch + 1)% validation_wait == 0){
+
                 double loss = calc01Loss(net,tuneImages,tuneClassLabels,predictStorage);
+                if(debug_flag)
+                    System.out.println("Current 01 loss: "+ loss);
                 if(loss < (bestLoss)){
                     if(loss < (bestLoss * improvement_threshold))
                         patience = (int) Math.max(patience, epoch * patience_mult);
@@ -298,7 +302,7 @@ public class Lab3 {
     	double[][] ret = new double[in.length][in[0].length];
     	for (int i = 0; i < in.length; i++) {
     		for (int j = 0; j < in[i].length; j++) {
-    			ret[i][j] = (double)in[i][j];
+    			ret[i][j] = ((double)in[i][j]) / 255.0;
     		}
     	}
     	return ret;
@@ -311,7 +315,6 @@ public class Lab3 {
         	images[i][0] = convertDouble(instance.getRedChannel());
         	images[i][1] = convertDouble(instance.getGreenChannel());
         	images[i][2] = convertDouble(instance.getBlueChannel());
-        	i++;
         }
 
 
@@ -326,7 +329,7 @@ public class Lab3 {
     public static void shuffle(double[][][][] trainImages, double[][] trainClassLabels){
         assert(trainClassLabels.length == trainImages.length);
         for(int i = 0; i < trainClassLabels.length-1; i ++){
-            int swapIndex = (int)(i + Math.random()*trainClassLabels.length);
+            int swapIndex = (int)(i + Math.random()*(trainClassLabels.length-i));
             double[] swapClass = trainClassLabels[swapIndex];
             double[][][] swapImage = trainImages[swapIndex];
             trainImages[swapIndex] = trainImages[i];

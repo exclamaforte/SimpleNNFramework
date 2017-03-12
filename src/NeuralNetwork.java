@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 public class NeuralNetwork {
-    public static final double LEARNING_RATE  = 0.001;
+    public static final double LEARNING_RATE  = 0.1;
     private int inputDepth;
     private int inputWidth;
     private OutputLayer output;
@@ -58,8 +58,13 @@ public class NeuralNetwork {
             previousWidth = inputWidth;
             previousDepth = inputDepth;
         }
-        layers.add(new ConvolutionLayer(previousWidth,previousDepth,numKernels,kernelWidth,step,Convolution_Initial_Radius));
+        ConvolutionLayer layer = new ConvolutionLayer(previousWidth,previousDepth,numKernels,kernelWidth,step,Convolution_Initial_Radius);
+        layer.randomInit();
+        layers.add(layer);
     }
+
+
+
     public void addMaxPoolingLayer(int step, int poolingWidth) {
         if(addedOutputLayer)
             try {
@@ -104,7 +109,9 @@ public class NeuralNetwork {
             previousWidth = input.getOutputWidth();
             previousDepth = input.getOutputDepth();
         }
-        layers.add(new FullyConnectedLayer(previousWidth, numHU));
+        FullyConnectedLayer layer = new FullyConnectedLayer(previousWidth, numHU);
+        layer.randomInit();
+        layers.add(layer);
     }
     public void addOutputLayer() {
         if(addedOutputLayer)
@@ -176,11 +183,12 @@ public class NeuralNetwork {
     }
 
     public void predict(double[][] predictArray, double[][][][] images){
+        assert(predictArray.length == images.length);
         for(int i = 0; i < images.length; i ++){
             forwardProp(forwardStorage,images[i]);
             double maxSignal = Double.NEGATIVE_INFINITY;
             int maxSignalIndex= -1;
-            for(int j = 0; j < Lab3.Num_Classes; i ++){
+            for(int j = 0; j < Lab3.Num_Classes; j ++){
                 predictArray[i][j] = 0;
                 double signal = forwardStorage[forwardStorage.length-1][j][0][0];
                 if(signal > maxSignal){
