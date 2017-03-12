@@ -136,11 +136,6 @@ public class Lab3 {
         throw new Error("Unknown category: " + name);
     }
 
-
-
-
-
-
     // Return the count of TESTSET errors for the chosen model.
     private static int trainANN(Dataset trainset, Dataset tuneset, Dataset testset) {
         Instance sampleImage = trainset.getImages().get(0); // Assume there is at least one train image!
@@ -165,38 +160,33 @@ public class Lab3 {
         fillInstanceArrays(testImages, testLabels,  testset);
 
         
-
-        NeuralNetwork nn = new NeuralNetwork(trainset.getImageWidth(), 3, Category.values().length,true);
-        int numHU = 20;
+        double[][] testPredictions;
+        NeuralNetwork nn = new NeuralNetwork(trainset.getImageWidth(), 3, Category.values().length,false);
+/*         int numHU = 20;
         // calling goes here.
-        nn.addConvolutionLayer(12, 32, 32);
-
-        nn.addMaxPoolingLayer(1, 1);
-        nn.addConvolutionLayer(6,1,1);
-
-        //nn.addFullyConnectedLayer(6);
-       // nn.addFullyConnectedLayer(6);
-
+        nn.addConvolutionLayer(16, 4, 1);
+        nn.addMaxPoolingLayer(1, 29);
+        nn.addConvolutionLayer(16, 1, 1);
+        nn.addConvolutionLayer(6, 1, 1);
         nn.addOutputLayer();
 
         runEarlyStopping(nn,trainImages,trainLabels, tuneImages, tuneLabels);
 
-        double[][] testPredictions = new double[testLabels.length][Num_Classes];
+        testPredictions = new double[testLabels.length][Num_Classes];
         nn.predict(testPredictions, testImages);
 
         System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
-/*
-        nn.printConfusionMatrix(testLabels,testPredictions);/
 
+        nn.printConfusionMatrix(testLabels,testPredictions);
+*/
         // =================
-
-        nn = new NeuralNetwork(32, 3, 6);
+        nn = new NeuralNetwork(32, 3, 6, true);
         nn.addConvolutionLayer(16, 4, 1);
         nn.addMaxPoolingLayer(2, 3);
         nn.addConvolutionLayer(8, 4, 1);
         nn.addMaxPoolingLayer(1, 11);
-        nn.addFullyConnectedLayer(16);
-        nn.addFullyConnectedLayer(6);
+        nn.addConvolutionLayer(16, 1, 1);
+        nn.addConvolutionLayer(6,1,1);
         nn.addOutputLayer();
 
         runEarlyStopping(nn,trainImages,trainLabels, tuneImages, tuneLabels);
@@ -207,7 +197,7 @@ public class Lab3 {
         System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
         
         nn.printConfusionMatrix(testLabels,testPredictions);
-
+/*
         // ================
         
         nn = new NeuralNetwork(32, 3, 6);
@@ -251,8 +241,8 @@ public class Lab3 {
         nn.predict(testPredictions, testImages);
 
         System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
-*/
         nn.printConfusionMatrix(testLabels,testPredictions);
+        */
         return -1;
     }
     public static final int starting_patience = 10;

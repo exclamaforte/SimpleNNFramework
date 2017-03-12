@@ -53,8 +53,8 @@ public class NeuralNetwork {
         int previousDepth;
         if(layers.size() > 0) {
             Layer previousLayer = layers.get(layers.size() - 1);
-            previousDepth = previousLayer.previousDepth;
-            previousWidth = previousLayer.previousWidth;
+            previousDepth = previousLayer.outputDepth;
+            previousWidth = previousLayer.outputWidth;
         }
         else {
             previousWidth = inputWidth;
