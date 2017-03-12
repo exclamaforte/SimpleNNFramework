@@ -202,6 +202,26 @@ public class Lab3 {
         
         nn.printConfusionMatrix(testLabels,testPredictions);
         
+        // =================
+        
+        nn = new NeuralNetwork(32, 3, 6, false);
+        nn.addConvolutionLayer(16, 4, 1);
+        nn.addMaxPoolingLayer(2, 3);
+        nn.addConvolutionLayer(8, 4, 1);
+        nn.addMaxPoolingLayer(1, 11);
+        nn.addConvolutionLayer(16, 1, 1);
+        nn.addConvolutionLayer(6,1,1);
+        nn.addOutputLayer();
+
+        runEarlyStopping(nn,trainImages,trainLabels, tuneImages, tuneLabels);
+
+        testPredictions = new double[testLabels.length][Num_Classes];
+        nn.predict(testPredictions, testImages);
+
+        System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
+        
+        nn.printConfusionMatrix(testLabels,testPredictions);
+        
         // ================
         
         nn = new NeuralNetwork(32, 3, 6, false);
