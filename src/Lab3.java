@@ -255,7 +255,6 @@ public class Lab3 {
         	images[i][0] = convertDouble(instance.getRedChannel());
         	images[i][1] = convertDouble(instance.getGreenChannel());
         	images[i][2] = convertDouble(instance.getBlueChannel());
-        	i++;
         }
 
 
