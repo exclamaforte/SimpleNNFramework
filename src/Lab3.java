@@ -29,7 +29,7 @@ public class Lab3 {
     // Images are imageSize x imageSize.  The provided data is 128x128, but this can be resized by setting this value (or passing in an argument).
     // You might want to resize to 8x8, 16x16, 32x32, or 64x64; this can reduce your network size and speed up debugging runs.
     // ALL IMAGES IN A TRAINING RUN SHOULD BE THE *SAME* SIZE.
-    private static enum    Category {
+    public static enum    Category {
         airplanes(0) , butterfly(1), flower(2), grand_piano(3), starfish(4), watch(5);
 
         private final int value;
