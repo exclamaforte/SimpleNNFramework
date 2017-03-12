@@ -178,7 +178,7 @@ public class Lab3 {
 
         System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
 
-        NeuralNetwork.printConfusionMatrix(testLabels,testPredictions);
+        nn.printConfusionMatrix(testLabels,testPredictions);
 
         // =================
         
@@ -198,7 +198,7 @@ public class Lab3 {
 
         System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
         
-        NeuralNetwork.printConfusionMatrix(testLabels,testPredictions);
+        nn.printConfusionMatrix(testLabels,testPredictions);
 
         // ================
         
@@ -219,7 +219,7 @@ public class Lab3 {
 
         System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
 
-        NeuralNetwork.printConfusionMatrix(testLabels,testPredictions);
+        nn.printConfusionMatrix(testLabels,testPredictions);
         
         // ================
         
@@ -243,7 +243,7 @@ public class Lab3 {
 
         System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
 
-        NeuralNetwork.printConfusionMatrix(testLabels,testPredictions);
+        nn.printConfusionMatrix(testLabels,testPredictions);
         return -1;
     }
     public static final int starting_patience = 1000;
