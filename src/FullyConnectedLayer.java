@@ -95,7 +95,7 @@ public class FullyConnectedLayer extends Layer {
     						weights[currNodeNum][nextNodeNum] * backwardData[layer][nextNodeNum][0][0];
             	}
             	for (int nextNodeNum = 0; nextNodeNum < previousDepth; nextNodeNum++) {
-            		weights[currNodeNum][nextNodeNum] += 
+            		weights[currNodeNum][nextNodeNum] -=
             				learningRate * forwardData[layer - 1][currNodeNum][0][0] * backwardData[layer][nextNodeNum][0][0];
             	}
             	biases[currNodeNum] -= learningRate * backwardData[layer][currNodeNum][0][0];

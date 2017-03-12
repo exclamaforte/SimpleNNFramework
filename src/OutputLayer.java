@@ -20,9 +20,15 @@ public class OutputLayer extends Layer {
 		assert(forwardData[layer-1][0].length == 1);
 		assert(forwardData[layer-1][0][0].length == 1);
 
+		double max = -Double.MAX_VALUE;
+		for (int i = 0; i < outputSize; i++) {
+			if (forwardData[layer-1][i][0][0] > max) {
+				max = forwardData[layer-1][i][0][0];
+			}
+		}
 		double C = 0;
 		for(int i = 0; i < outputSize; i ++ ){
-			expStorage[i] = Math.exp(forwardData[layer-1][i][0][0]);
+			expStorage[i] = Math.exp(forwardData[layer-1][i][0][0] - max);
 			C += expStorage[i];
 		}
 		for(int i = 0; i < outputSize; i ++){

@@ -2,25 +2,27 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class NeuralNetwork {
-    public static final double LEARNING_RATE  = 0.1;
+    public static final double LEARNING_RATE  = 0.001;
     private int inputDepth;
     private int inputWidth;
     private OutputLayer output;
     private ArrayList<Layer> layers;
     private int outputClasses;
     private double learningRate = 0.1;
+    private boolean useDropout;
 
     private boolean addedOutputLayer;
     private double[][][][] forwardStorage;
     private double[][][][] backwardStorage;
 
 
-    public NeuralNetwork(int inputWidth, int inputDepth, int outputClasses) {
+    public NeuralNetwork(int inputWidth, int inputDepth, int outputClasses, boolean useDropout) {
         this.layers = new ArrayList<Layer>();
         this.inputDepth = inputDepth;
         this.inputWidth = inputWidth;
         this.outputClasses = outputClasses;
         this.addedOutputLayer = false;
+        this.useDropout = useDropout;
     }
     /*
      * Converts a dataset object to the correct feature vector
@@ -160,17 +162,21 @@ public class NeuralNetwork {
         for (int instidx = 0; instidx < train.length; instidx++) {
             double[][][] image = train[instidx];
             double[] classOnehot = trainClass[instidx];
-            forwardProp(forwardStorage,image);
+            forwardProp(forwardStorage,image,true);
             backProp(forwardStorage, backwardStorage,classOnehot);
         }
     }
 
-    private void forwardProp(double[][][][] forward, double[][][] inputImage){
+    private void forwardProp(double[][][][] forward, double[][][] inputImage,boolean isTraining){
         forward[0] = inputImage;
         for(int i = 0; i < layers.size(); i ++){
             Layer l = layers.get(i);
-            l.forward(i+1,forward);
-            i++;
+            if(useDropout) {
+                l.forwardDropout(i + 1, forward, isTraining);
+            }
+            else {
+                l.forward(i + 1, forward);
+            }
         }
         output.forward(layers.size() + 1, forward);
     }
@@ -186,7 +192,7 @@ public class NeuralNetwork {
     public void predict(double[][] predictArray, double[][][][] images){
         assert(predictArray.length == images.length);
         for(int i = 0; i < images.length; i ++){
-            forwardProp(forwardStorage,images[i]);
+            forwardProp(forwardStorage,images[i],false);
             double maxSignal = Double.NEGATIVE_INFINITY;
             int maxSignalIndex= -1;
             for(int j = 0; j < Lab3.Num_Classes; j ++){
@@ -208,7 +214,8 @@ public class NeuralNetwork {
     // Takes two arrays, then calculates and prints a confusion matrix
     // First array of 2D vector is an array of instance classifications. 2nd array is the 1-hot classification
     // @param dataset is a Dataset object in order to retrieve proper class labels
-    public void printConfusionMatrix(double[][] actualOutputClasses, double[][] predictedOutputClasses) {
+
+    public static void printConfusionMatrix(double[][] actualOutputClasses, double[][] predictedOutputClasses) {
 
         assert(predictedOutputClasses.length == actualOutputClasses.length);
         assert(predictedOutputClasses[0].length == actualOutputClasses[0].length);
@@ -337,5 +344,13 @@ public class NeuralNetwork {
         for(Layer l : layers){
             l.resetToBestWeights();
         }
+    }
+
+    public void testFiniteDifference(){
+
+    }
+
+    private double[][][] logLikelyhood(double[][][] output, double[] classLabel){
+        return null;
     }
 }
