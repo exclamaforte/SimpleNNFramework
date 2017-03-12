@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 public class NeuralNetwork {
-    public static final double LEARNING_RATE  = 0.1;
+    public static final double LEARNING_RATE  = 0.001;
     private int inputDepth;
     private int inputWidth;
     private OutputLayer output;
@@ -169,7 +169,6 @@ public class NeuralNetwork {
         for(int i = 0; i < layers.size(); i ++){
             Layer l = layers.get(i);
             l.forward(i+1,forward);
-            i++;
         }
         output.forward(layers.size() + 1, forward);
     }
@@ -267,5 +266,13 @@ public class NeuralNetwork {
         for(Layer l : layers){
             l.resetToBestWeights();
         }
+    }
+
+    public void testFiniteDifference(){
+
+    }
+
+    private double[][][] logLikelyhood(double[][][] output, double[] classLabel){
+        return null;
     }
 }

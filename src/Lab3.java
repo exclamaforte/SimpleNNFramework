@@ -168,10 +168,11 @@ public class Lab3 {
         NeuralNetwork nn = new NeuralNetwork(trainset.getImageWidth(), 3, Category.values().length);
         int numHU = 20;
         // calling goes here.
-        nn.addConvolutionLayer(10, 4, 2);
+        nn.addConvolutionLayer(6, 32, 32);
+        /*
         nn.addMaxPoolingLayer(15, 15);
         nn.addFullyConnectedLayer(10);
-        nn.addFullyConnectedLayer(6);
+        nn.addFullyConnectedLayer(6);*/
         nn.addOutputLayer();
 
         runEarlyStopping(nn,trainImages,trainLabels, tuneImages, tuneLabels);
