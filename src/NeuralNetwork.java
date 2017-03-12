@@ -8,7 +8,6 @@ public class NeuralNetwork {
     private OutputLayer output;
     private ArrayList<Layer> layers;
     private int outputClasses;
-    private double learningRate = 0.1;
     private boolean useDropout;
 
     private boolean addedOutputLayer;
@@ -182,7 +181,7 @@ public class NeuralNetwork {
     }
 
     private void backProp(double[][][][] forward, double[][][][] backward, double[] labelOnehot){
-        output.backwards(layers.size() + 1,forward,backward, learningRate, labelOnehot);
+        output.backwards(layers.size() + 1,forward,backward, LEARNING_RATE, labelOnehot);
         for(int i = layers.size() -1; i >= 0; i --){
             Layer l = layers.get(i);
             l.backwards(i+1,forward,backward,LEARNING_RATE);
@@ -214,46 +213,58 @@ public class NeuralNetwork {
     // Takes two arrays, then calculates and prints a confusion matrix
     // First array of 2D vector is an array of instance classifications. 2nd array is the 1-hot classification
     // @param dataset is a Dataset object in order to retrieve proper class labels
-    public static void printConfusionMatrix(double[][] actualOutputClasses, double[][] expectedOutputClasses) {
 
-        assert(expectedOutputClasses.length == actualOutputClasses.length);
-        assert(expectedOutputClasses[0].length == actualOutputClasses[0].length);
+    public static void printConfusionMatrix(double[][] actualOutputClasses, double[][] predictedOutputClasses) {
 
-        int numClasses = expectedOutputClasses[0].length;
-        int numInstances = expectedOutputClasses.length;
+        assert(predictedOutputClasses.length == actualOutputClasses.length);
+        assert(predictedOutputClasses[0].length == actualOutputClasses[0].length);
+
+        int numClasses = predictedOutputClasses[0].length;
+        int numInstances = predictedOutputClasses.length;
 
         // First array index is PREDICTED, second index is CORRECT (according to confusion matrix picture from lab3.ppt)
         int[][] confusionMatrix = new int[numClasses][numClasses];
 
-        // Iterate through instances (index 'i' points to each instance)
+        // Get each instance
         for(int i = 0; i < numInstances; i++) {
-            double[] expectedClass = expectedOutputClasses[i];
             double[] actualClass = actualOutputClasses[i];
+            double[] predictedClass = predictedOutputClasses[i];
 
-            // Iterate through predicted class
-            for(int k = 0; k < expectedClass.length; k++) {
-
-                // Iterate through actual class
-                for(int j = 0; j < actualClass.length; j++) {
-
-                    // Confusion determination logic
-                    if(expectedClass[k] == 1 && actualClass[j] == 1) confusionMatrix[k][j]++;
-                    else if(expectedClass[k] == 0 && actualClass[j] == 1) confusionMatrix[k][j]++;
-                    else if(expectedClass[k] == 1 && actualClass[j] == 1) confusionMatrix[k][j]++;
-                }
+            // k is index of predicted class
+            int k = 0;
+            for(double index : predictedClass) {
+                if(index == 1.0) break;
+                k++;
             }
+
+            // j is index of actual class
+            int j = 0;
+            for(double index : actualClass) {
+                if(index == 1.0) break;
+                j++;
+            }
+
+            confusionMatrix[k][j]++;
         }
 
+        // TODO: Print the matrix
         // Print the label for each column (CORRECT CATEGORY part of confusion matrix picture)
         String[] stringOfLabels = spaghettiLabels();
-        System.out.print("\t");
+        System.out.print("\t\t\t\t");
         for(String label : stringOfLabels) System.out.print(label + "\t");
+        System.out.print("\n");
 
-        // TODO: Print the matrix
-        for(int j = 0; j < confusionMatrix.length; j++) {
-            System.out.print(stringOfLabels[j] + "\t");
-            for(int k = 0; k < confusionMatrix.length; k++) {
-                System.out.print(confusionMatrix[k][j]+"\t");
+        for(int j = 0; j < numClasses; j++) {
+            // Print the name of the row and some tabs, and an extra tab for the words that are shorter
+            System.out.print(stringOfLabels[j] + "\t\t\t");
+            if(stringOfLabels[j].length() < 7) System.out.print("\t"); // extra tab for shorter words
+
+            // Iterate through each column
+            for(int k = 0; k < numClasses; k++) {
+                System.out.print(confusionMatrix[k][j]+"\t\t");
+                if(k == 0 || k == 4) System.out.print("\t");
+                if(k == 3) System.out.print("  ");
+                if(k == 1) System.out.print("   ");
             }
             System.out.print("\n");
         }
@@ -261,27 +272,15 @@ public class NeuralNetwork {
 
         // The sole purpose of the following code is to guarantee that each row & each column adds to the correct sum
         // (which is the number of total instances) -- again, refer to confusion matrix picture from lab3.ppt
-        int rowSum = 0;
-        int colSum = 0;
+        int sum = 0;
 
-        // Iterate through the confusion matrix row-by-row
-        // j is CORRECT
-        for(int j = 0; j < numClasses; j++) {
-            // k is PREDICTED
+        // Iterate through entire table to ensure that all indices sum to total number of instances
+        for(int i = 0; i < numClasses; i++) {
             for(int k = 0; k < numClasses; k++) {
-                rowSum += confusionMatrix[k][j];
+                sum += confusionMatrix[i][k];
             }
-            assert(rowSum == numInstances);
         }
-
-        // k is PREDICTED
-        for(int k = 0; k < numClasses; k++) {
-            // j is CORRECT
-            for(int j = 0; j < numClasses; j++) {
-                colSum += confusionMatrix[k][j];
-            }
-            assert(colSum == numInstances);
-        }
+        assert(sum == numInstances);
     }
 
     private static String[] spaghettiLabels() {
