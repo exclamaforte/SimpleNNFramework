@@ -161,9 +161,12 @@ public class Lab3 {
 
         
         double[][] testPredictions;
-        NeuralNetwork nn = new NeuralNetwork(trainset.getImageWidth(), 3, Category.values().length,false);
-/*         int numHU = 20;
-        // calling goes here.
+        NeuralNetwork nn;
+        
+        // =============
+        nn = new NeuralNetwork(trainset.getImageWidth(), 3, Category.values().length,false);
+        int numHU = 20;
+
         nn.addConvolutionLayer(16, 4, 1);
         nn.addMaxPoolingLayer(1, 29);
         nn.addConvolutionLayer(16, 1, 1);
@@ -178,8 +181,9 @@ public class Lab3 {
         System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
 
         nn.printConfusionMatrix(testLabels,testPredictions);
-*/
+     
         // =================
+        
         nn = new NeuralNetwork(32, 3, 6, true);
         nn.addConvolutionLayer(16, 4, 1);
         nn.addMaxPoolingLayer(2, 3);
@@ -197,18 +201,18 @@ public class Lab3 {
         System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
         
         nn.printConfusionMatrix(testLabels,testPredictions);
-/*
+        
         // ================
         
-        nn = new NeuralNetwork(32, 3, 6);
+        nn = new NeuralNetwork(32, 3, 6, false);
         nn.addConvolutionLayer(8, 4, 1);
         nn.addMaxPoolingLayer(2, 3);
         nn.addConvolutionLayer(8, 4, 1);
         nn.addMaxPoolingLayer(1, 3);
         nn.addConvolutionLayer(8, 4, 1);
         nn.addMaxPoolingLayer(8, 6);
-        nn.addFullyConnectedLayer(16);
-        nn.addFullyConnectedLayer(6);
+        nn.addConvolutionLayer(16,1,1);
+        nn.addConvolutionLayer(6,1,1);
         nn.addOutputLayer();
         runEarlyStopping(nn,trainImages,trainLabels, tuneImages, tuneLabels);
 
@@ -221,7 +225,7 @@ public class Lab3 {
         
         // ================
         
-        nn = new NeuralNetwork(32, 3, 6);
+        nn = new NeuralNetwork(32, 3, 6, false);
         nn.addConvolutionLayer(8, 4, 1);
         nn.addMaxPoolingLayer(1, 3);
         nn.addConvolutionLayer(8, 4, 1);
@@ -230,8 +234,8 @@ public class Lab3 {
         nn.addMaxPoolingLayer(1, 3);
         nn.addConvolutionLayer(4, 4, 1);
         nn.addMaxPoolingLayer(1, 4);
-        nn.addFullyConnectedLayer(22);
-        nn.addFullyConnectedLayer(6);
+        nn.addConvolutionLayer(22,1,1);
+        nn.addConvolutionLayer(6,1,1);
         nn.addOutputLayer();
 
 
@@ -242,7 +246,6 @@ public class Lab3 {
 
         System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
         nn.printConfusionMatrix(testLabels,testPredictions);
-        */
         return -1;
     }
     public static final int starting_patience = 10;
