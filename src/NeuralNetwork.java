@@ -8,7 +8,6 @@ public class NeuralNetwork {
     private OutputLayer output;
     private ArrayList<Layer> layers;
     private int outputClasses;
-    private double learningRate = 0.1;
     private boolean useDropout;
 
     private boolean addedOutputLayer;
@@ -182,7 +181,7 @@ public class NeuralNetwork {
     }
 
     private void backProp(double[][][][] forward, double[][][][] backward, double[] labelOnehot){
-        output.backwards(layers.size() + 1,forward,backward, learningRate, labelOnehot);
+        output.backwards(layers.size() + 1,forward,backward, LEARNING_RATE, labelOnehot);
         for(int i = layers.size() -1; i >= 0; i --){
             Layer l = layers.get(i);
             l.backwards(i+1,forward,backward,LEARNING_RATE);

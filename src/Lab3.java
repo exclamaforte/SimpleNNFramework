@@ -55,7 +55,7 @@ public class Lab3 {
     // The last element in this vector holds the 'teacher-provided' label of the example.
 
     private static double eta       =    0.1, fractionOfTrainingToUse = 1.00, dropoutRate = 0.50; // To turn off drop out, set dropoutRate to 0.0 (or a neg number).
-    private static int    maxEpochs = 300; // Feel free to set to a different value.
+    private static int    maxEpochs = 150; // Feel free to set to a different value.
     private NeuralNetwork nn;
     
     public static final int Num_Classes  = 6;
