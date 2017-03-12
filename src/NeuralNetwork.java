@@ -8,11 +8,18 @@ public class NeuralNetwork {
     private ArrayList<Layer> layers;
     private int outputClasses;
     private double learningRate = 0.1;
+
+    private boolean addedOutputLayer;
+    private double[][][][] forwardStorage;
+    private double[][][][] backwardStorage;
+
+
     public NeuralNetwork(int inputWidth, int inputDepth, int outputClasses) {
         this.layers = new ArrayList<Layer>();
         this.inputDepth = inputDepth;
         this.inputWidth = inputWidth;
         this.outputClasses = outputClasses;
+        this.addedOutputLayer = false;
     }
     /*
      * Converts a dataset object to the correct feature vector
@@ -32,6 +39,14 @@ public class NeuralNetwork {
 
     // Only set width (not height) because we're assuming it's a square
     public void addConvolutionLayer(int numKernels, int kernelWidth, int step) {
+        if(addedOutputLayer)
+            try {
+                throw new Exception("Cannot add layer on top of output layer!");
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                System.exit(0);
+            }
+
         int previousWidth;
         int previousDepth;
         if(layers.size() > 0) {
@@ -46,6 +61,15 @@ public class NeuralNetwork {
         layers.add(new ConvolutionLayer(previousWidth,previousDepth,numKernels,kernelWidth,step,Convolution_Initial_Radius));
     }
     public void addMaxPoolingLayer(int step, int poolingWidth) {
+        if(addedOutputLayer)
+            try {
+                throw new Exception("Cannot add layer on top of output layer!");
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                System.exit(0);
+            }
+
+
         int previousWidth = -1;
         int previousDepth = -1;
         if(layers.size() == 0) {
@@ -60,6 +84,15 @@ public class NeuralNetwork {
         layers.add(new MaxPoolingLayer(previousWidth, previousDepth,step,poolingWidth));
     }
     public void addFullyConnectedLayer(int numHU) {
+        if(addedOutputLayer)
+            try {
+                throw new Exception("Cannot add layer on top of output layer!");
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                System.exit(0);
+            }
+
+
         int previousWidth = -1;
         int previousDepth = -1;
         if(layers.size() == 0) {
@@ -74,6 +107,16 @@ public class NeuralNetwork {
         layers.add(new FullyConnectedLayer(previousWidth, numHU));
     }
     public void addOutputLayer() {
+        if(addedOutputLayer)
+            try {
+                throw new Exception("Cannot add layer on top of output layer!");
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                System.exit(0);
+            }
+
+        addedOutputLayer = true;
+
         int previousDepth = -1;
         if (layers.size() == 0) {
             previousDepth = inputDepth;
@@ -82,42 +125,70 @@ public class NeuralNetwork {
             previousDepth = input.getOutputDepth();
         }
         this.output = new OutputLayer(previousDepth, outputClasses);
-    }
-    public void train(double[][][][] train, double[][] trainClass) {
 
-        //initialize forward and backward arrays
+        this.forwardStorage = getForwardArray();
+        this.backwardStorage = getBackWardArray();
+    }
+
+
+    private double[][][][] getForwardArray(){
         double[][][][] forward = new double[this.layers.size() + 2][][][];
-        double[][][][] backward = new double[this.layers.size() + 2][][][];
         forward[0] = new double[inputDepth][inputWidth][inputWidth];
-        backward[0] = new double[inputDepth][inputWidth][inputWidth];
         for(int i = 0; i < layers.size(); i ++){
             Layer layer = layers.get(i);
             forward[i+1] = new double[layer.outputDepth][layer.outputWidth][layer.outputWidth];
-            backward[i+1] = new double[layer.outputDepth][layer.outputWidth][layer.outputWidth];
         }
         forward[forward.length -1] = new double[outputClasses][1][1];
-        backward[forward.length -1] = new double[outputClasses][1][1];
-        //**********************************
+        return forward;
+    }
 
+    private double[][][][] getBackWardArray(){
+        return getForwardArray();
+    }
+
+
+    public void train(double[][][][] train, double[][] trainClass) {
         //Run epochs
         for (int instidx = 0; instidx < train.length; instidx++) {
-        	forward[0] = train[instidx];
+            double[][][] image = train[instidx];
+            double[] classOnehot = trainClass[instidx];
+            forwardProp(forwardStorage,image);
+            backProp(forwardStorage, backwardStorage,classOnehot);
+        }
+    }
 
-            int i = 1;
-            for (Layer l : this.layers) {
-                l.forward(i,forward, trainClass[instidx]);
-                i++;
+    private void forwardProp(double[][][][] forward, double[][][] inputImage){
+        forward[0] = inputImage;
+        for(int i = 0; i < layers.size(); i ++){
+            Layer l = layers.get(i);
+            l.forward(i+1,forward);
+            i++;
+        }
+        output.forward(layers.size() + 1, forward);
+    }
+
+    private void backProp(double[][][][] forward, double[][][][] backward, double[] labelOnehot){
+        output.backwards(layers.size() + 1,forward,backward, learningRate, labelOnehot);
+        for(int i = layers.size() -1; i >= 0; i --){
+            Layer l = layers.get(i);
+            l.backwards(i+1,forward,backward,LEARNING_RATE);
+        }
+    }
+
+    public void predict(double[][] predictArray, double[][][][] images){
+        for(int i = 0; i < images.length; i ++){
+            forwardProp(forwardStorage,images[i]);
+            double maxSignal = Double.NEGATIVE_INFINITY;
+            int maxSignalIndex= -1;
+            for(int j = 0; j < Lab3.Num_Classes; i ++){
+                predictArray[i][j] = 0;
+                double signal = forwardStorage[forwardStorage.length-1][j][0][0];
+                if(signal > maxSignal){
+                    maxSignal = signal;
+                    maxSignalIndex = j;
+                }
             }
-            output.forward(i, forward,  trainClass[instidx]);
-
-
-            output.backwards(i,forward,backward, learningRate, trainClass[instidx]);
-            i--;
-            for(int layer_idx = layers.size() -1; layer_idx >= 0; layer_idx --){
-                Layer l = layers.get(layer_idx);
-                l.backwards(i,forward,backward,LEARNING_RATE);
-                i--;
-            }
+            predictArray[i][maxSignalIndex] = 1;
         }
     }
 
@@ -177,4 +248,16 @@ public class NeuralNetwork {
         // TODO: Iterate through the confusion matrix column-by-column (and assert each column sum equals numInstances)
     }
 
+    public void cacheCurrentBestTuneWeights(){
+        for (Layer l: layers
+             ) {
+            l.cacheBestWeights();
+        }
+    }
+
+    public void resetToBestTuningWeights() {
+        for(Layer l : layers){
+            l.resetToBestWeights();
+        }
+    }
 }
