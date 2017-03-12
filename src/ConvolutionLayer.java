@@ -47,7 +47,7 @@ public class ConvolutionLayer extends Layer {
             }
         }
         for(int i = 0; i < biases.length; i ++){
-            biases[i] = 5;
+            biases[i] = 1;
         }
     }
 

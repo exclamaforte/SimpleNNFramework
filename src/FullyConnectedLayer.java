@@ -25,6 +25,9 @@ public class FullyConnectedLayer extends Layer {
                 this.weights[i][j] = (Math.random() - 0.5) * radius;
             }
         }
+		for(int i = 0; i < biases.length; i ++){
+			biases[i] = 1;
+		}
     }
 
 	@Override
