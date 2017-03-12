@@ -30,7 +30,7 @@ public class Lab3 {
     // Images are imageSize x imageSize.  The provided data is 128x128, but this can be resized by setting this value (or passing in an argument).
     // You might want to resize to 8x8, 16x16, 32x32, or 64x64; this can reduce your network size and speed up debugging runs.
     // ALL IMAGES IN A TRAINING RUN SHOULD BE THE *SAME* SIZE.
-    private static enum    Category {
+    public static enum    Category {
         airplanes(0) , butterfly(1), flower(2), grand_piano(3), starfish(4), watch(5);
 
         private final int value;
@@ -173,6 +173,7 @@ public class Lab3 {
         nn.addMaxPoolingLayer(15, 15);
         nn.addFullyConnectedLayer(10);
         nn.addFullyConnectedLayer(6);*/
+
         nn.addOutputLayer();
 
         runEarlyStopping(nn,trainImages,trainLabels, tuneImages, tuneLabels);
@@ -184,9 +185,72 @@ public class Lab3 {
 
         NeuralNetwork.printConfusionMatrix(testLabels,testPredictions);
 
+        // =================
+
+        nn = new NeuralNetwork(32, 3, 6);
+        nn.addConvolutionLayer(16, 4, 1);
+        nn.addMaxPoolingLayer(2, 3);
+        nn.addConvolutionLayer(8, 4, 1);
+        nn.addMaxPoolingLayer(1, 11);
+        nn.addFullyConnectedLayer(16);
+        nn.addFullyConnectedLayer(6);
+        nn.addOutputLayer();
+
+        runEarlyStopping(nn,trainImages,trainLabels, tuneImages, tuneLabels);
+
+        testPredictions = new double[testLabels.length][Num_Classes];
+        nn.predict(testPredictions, testImages);
+
+        System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
+        
+        NeuralNetwork.printConfusionMatrix(testLabels,testPredictions);
+
+        // ================
+        
+        nn = new NeuralNetwork(32, 3, 6);
+        nn.addConvolutionLayer(8, 4, 1);
+        nn.addMaxPoolingLayer(2, 3);
+        nn.addConvolutionLayer(8, 4, 1);
+        nn.addMaxPoolingLayer(1, 3);
+        nn.addConvolutionLayer(8, 4, 1);
+        nn.addMaxPoolingLayer(8, 6);
+        nn.addFullyConnectedLayer(16);
+        nn.addFullyConnectedLayer(6);
+        nn.addOutputLayer();
+        runEarlyStopping(nn,trainImages,trainLabels, tuneImages, tuneLabels);
+
+        testPredictions = new double[testLabels.length][Num_Classes];
+        nn.predict(testPredictions, testImages);
+
+        System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
+
+        NeuralNetwork.printConfusionMatrix(testLabels,testPredictions);
+        
+        // ================
+        
+        nn = new NeuralNetwork(32, 3, 6);
+        nn.addConvolutionLayer(8, 4, 1);
+        nn.addMaxPoolingLayer(1, 3);
+        nn.addConvolutionLayer(8, 4, 1);
+        nn.addMaxPoolingLayer(2, 2);
+        nn.addConvolutionLayer(4, 4, 1);
+        nn.addMaxPoolingLayer(1, 3);
+        nn.addConvolutionLayer(4, 4, 1);
+        nn.addMaxPoolingLayer(1, 4);
+        nn.addFullyConnectedLayer(22);
+        nn.addFullyConnectedLayer(6);
+        nn.addOutputLayer();
+
+        runEarlyStopping(nn,trainImages,trainLabels, tuneImages, tuneLabels);
+
+        testPredictions = new double[testLabels.length][Num_Classes];
+        nn.predict(testPredictions, testImages);
+
+        System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
+
+        NeuralNetwork.printConfusionMatrix(testLabels,testPredictions);
         return -1;
     }
-
     public static final int starting_patience = 1000;
     public static final float patience_mult = 2;
     public static final int validation_wait = 5;
