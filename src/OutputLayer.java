@@ -20,7 +20,7 @@ public class OutputLayer extends Layer {
 		assert(forwardData[layer-1][0].length == 1);
 		assert(forwardData[layer-1][0][0].length == 1);
 
-		double max = Double.MIN_VALUE;
+		double max = -Double.MAX_VALUE;
 		for (int i = 0; i < outputSize; i++) {
 			if (forwardData[layer-1][i][0][0] > max) {
 				max = forwardData[layer-1][i][0][0];
