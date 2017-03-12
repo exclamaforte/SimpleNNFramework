@@ -248,36 +248,12 @@ public class NeuralNetwork {
             confusionMatrix[k][j]++;
         }
 
-
-        /*
-        // Iterate through instances (index 'i' points to each instance)
-        for(int i = 0; i < numInstances; i++) {
-            double[] expectedClass = expectedOutputClasses[i];
-            double[] actualClass = actualOutputClasses[i];
-
-            // Iterate through predicted class
-            for(int k = 0; k < expectedClass.length; k++) {
-
-                // Iterate through actual class
-                for(int j = 0; j < actualClass.length; j++) {
-
-                    // Confusion determination logic
-                    if(expectedClass[k] == 1 && actualClass[j] == 1) confusionMatrix[k][j]++;
-                    else if(expectedClass[k] == 0 && actualClass[j] == 1) confusionMatrix[k][j]++;
-                    else if(expectedClass[k] == 1 && actualClass[j] == 1) confusionMatrix[k][j]++;
-                }
-            }
-        }
-        */
-
         // TODO: Print the matrix
         // Print the label for each column (CORRECT CATEGORY part of confusion matrix picture)
         String[] stringOfLabels = spaghettiLabels();
         System.out.print("\t\t\t\t");
         for(String label : stringOfLabels) System.out.print(label + "\t");
         System.out.print("\n");
-
-
 
         for(int j = 0; j < numClasses; j++) {
             // Print the name of the row and some tabs, and an extra tab for the words that are shorter
@@ -297,29 +273,15 @@ public class NeuralNetwork {
 
         // The sole purpose of the following code is to guarantee that each row & each column adds to the correct sum
         // (which is the number of total instances) -- again, refer to confusion matrix picture from lab3.ppt
-        int rowSum = 0;
-        int colSum = 0;
+        int sum = 0;
 
-        // Iterate through the confusion matrix row-by-row
-        // j is CORRECT
-        for(int j = 0; j < numClasses; j++) {
-            // k is PREDICTED
-            rowSum = 0;
+        // Iterate through entire table to ensure that all indices sum to total number of instances
+        for(int i = 0; i < numClasses; i++) {
             for(int k = 0; k < numClasses; k++) {
-                rowSum += confusionMatrix[k][j];
+                sum += confusionMatrix[i][k];
             }
-            //assert(rowSum == numInstances);
         }
-
-        // k is PREDICTED
-        for(int k = 0; k < numClasses; k++) {
-            // j is CORRECT
-            colSum = 0;
-            for(int j = 0; j < numClasses; j++) {
-                colSum += confusionMatrix[k][j];
-            }
-            //assert(colSum == numInstances);
-        }
+        assert(sum == numInstances);
     }
 
     private static String[] spaghettiLabels() {
