@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class NeuralNetwork {
-    public static final double LEARNING_RATE  = 0.001;
+    public static final double LEARNING_RATE  = 0.02;
     private int inputDepth;
     private int inputWidth;
     private OutputLayer output;
