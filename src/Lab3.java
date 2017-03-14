@@ -167,13 +167,9 @@ public class Lab3 {
         nn = new NeuralNetwork(trainset.getImageWidth(), 3, Category.values().length,false);
 
         nn.addConvolutionLayer(16, 4, 1);
-        nn.addMaxPoolingLayer(2, 3);
-        nn.addConvolutionLayer(16, 4, 2);
         nn.addMaxPoolingLayer(1, 2);
-        nn.addConvolutionLayer(16, 4, 1);
-        nn.addMaxPoolingLayer(1, 2);
-        nn.addConvolutionLayer(16, 1, 1);
-        nn.addConvolutionLayer(6, 1, 1);
+        nn.addConvolutionLayer(6, 14, 14);
+        nn.addConvolutionLayer(6, 2,2);
         nn.addOutputLayer();
 
         runEarlyStopping(nn,trainImages,trainLabels, tuneImages, tuneLabels);
@@ -184,7 +180,7 @@ public class Lab3 {
         System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
 
         nn.printConfusionMatrix(testLabels,testPredictions);
-     
+     /*
         // =================
         nn = new NeuralNetwork(trainset.getImageWidth(), 3, Category.values().length,false);
 
@@ -333,7 +329,7 @@ public class Lab3 {
         System.out.println("Test set 0-1 loss: " + calc01Loss(testPredictions,testLabels));
 
         nn.printConfusionMatrix(testLabels,testPredictions);
-        
+        */
         return -1;
     }
     public static final int starting_patience = 10;
